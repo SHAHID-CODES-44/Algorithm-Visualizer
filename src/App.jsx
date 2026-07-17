@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Home from './Pages/Home.jsx'
-import TowerOfHanoi from "./Visualizers/TowerOfHanoi.jsx";
-import BubbleSort from './Visualizers/BubbleSort.jsx'
+import Home from './pages/Home.jsx'
+import TowerOfHanoi from "./visualizers/TowerOfHanoi.jsx";
+import BubbleSort from './visualizers/BubbleSort.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
