@@ -240,13 +240,27 @@ html, body, #root {
 .step-of { font-size: 1rem; color: #94a3b8; font-weight: 500; }
 
 .step-desc {
-  font-size: 14px;
+  font-size: 18px;
   color: #475569;
   background: #f1f5f9;
   border-radius: 8px;
   padding: 4px 12px;
 }
+.sort-root .complexity-badge {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1.5px solid #e2e8f0;
+  white-space: nowrap;
+}
 
+.sort-root .complexity-badge strong {
+  color: #1e293b;
+  font-weight: 800;
+}
 .step-desc strong { color: #0f172a; }
 
 .step-hint { font-size: 13px; color: #94a3b8; }
@@ -638,6 +652,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow-x: auto;
 }
  
 .sort-root .bars-stage {
@@ -645,6 +660,7 @@ html, body, #root {
   width: 100%;
   flex: 1;
   min-height: 0;
+  margin-left: 20px;
 }
  
 .sort-root .bar {
@@ -686,6 +702,8 @@ html, body, #root {
   display: flex;
   flex-shrink: 0;
   padding-top: 6px;
+  margin-left:19px;
+
 }
 .sort-root .index-label {
   text-align: center;
@@ -697,10 +715,10 @@ html, body, #root {
 /* input boxes */
 .sort-root .array-input-row {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   margin-top: 14px;
-  padding: 14px;
+  padding: 16px;
   background: #f8fafc;
   border-radius: 10px;
   border: 1.5px dashed #cbd5e1;
