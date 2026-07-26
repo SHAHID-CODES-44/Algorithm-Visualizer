@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import TowerOfHanoi from "../visualizers/TowerOfHanoi";
-import BubbleSort from "../visualizers/BubbleSort";
+import Sorts from "../visualizers/Sorts";
 
 const Home = () => {
     return (
@@ -10,7 +10,7 @@ const Home = () => {
            <Link to="/TowerOfHanoi">Tower Of Hanoi</Link>
            <br />
            <br />
-           <Link to="/BubbleSort">Bubble Sort</Link>
+           <Link to="/Sorts">Sorts</Link>
         </div>
     );
 };

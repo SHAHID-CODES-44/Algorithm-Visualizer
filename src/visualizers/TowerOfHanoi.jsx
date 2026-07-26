@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import "./TowerOfHanoi.css";
+import "../css/base.css";
+import OnRefresh from "../pages/OnRefresh";
 
 const DISK_COLORS = [
   "#2563EB","#7C3AED","#0891B2","#059669","#D97706","#DC2626","#DB2777"
@@ -40,6 +41,8 @@ const TowerOfHanoi = () => {
   const [countdown, setCountdown] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const timeoutsRef = useRef([]);
+
+  OnRefresh(phase === "playing" || phase === "countdown"); // Preventing the refresh
 
   const clearAllTimeouts = () => { timeoutsRef.current.forEach(clearTimeout); timeoutsRef.current = []; };
 
