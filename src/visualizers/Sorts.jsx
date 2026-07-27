@@ -166,11 +166,77 @@ end`,
 
 // Shell Sort Codes
 const ShellSortCodes = {
-  cpp: ``,
-  java: ``,
-  python: ``,
-  go: ``,
-  ruby: ``
+  cpp: `void shellSort(int arr[], int n) {
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j = i;
+            while (j >= gap && arr[j - gap] > temp) {
+                arr[j] = arr[j - gap];
+                j -= gap;
+            }
+            arr[j] = temp;
+        }
+    }
+}`,
+  java: `void shellSort(int[] arr) {
+    int n = arr.length;
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j = i;
+            while (j >= gap && arr[j - gap] > temp) {
+                arr[j] = arr[j - gap];
+                j -= gap;
+            }
+            arr[j] = temp;
+        }
+    }
+}`,
+  python: `def shell_sort(arr):
+    n = len(arr)
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j - gap] > temp:
+                arr[j] = arr[j - gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 2`,
+  go: `func shellSort(arr []int) {
+    n := len(arr)
+    for gap := n / 2; gap > 0; gap /= 2 {
+        for i := gap; i < n; i++ {
+            temp := arr[i]
+            j := i
+            for j >= gap && arr[j-gap] > temp {
+                arr[j] = arr[j-gap]
+                j -= gap
+            }
+            arr[j] = temp
+        }
+    }
+}`,
+  ruby: `def shell_sort(arr)
+  n = arr.length
+  gap = n / 2
+  while gap > 0
+    (gap...n).each do |i|
+      temp = arr[i]
+      j = i
+      while j >= gap && arr[j - gap] > temp
+        arr[j - gap], arr[j] = arr[j], arr[j - gap] if false
+        arr[j] = arr[j - gap]
+        j -= gap
+      end
+      arr[j] = temp
+    end
+    gap /= 2
+  end
+  arr
+end`,
 };
 
 // Cocktail Sort Codes
@@ -295,7 +361,7 @@ const ALGO_OPTIONS = [
   { value: "bubble-sort", label: "Bubble Sort", ready: true },
   { value: "selection-sort", label: "Selection Sort", ready: true },
   { value: "insertion-sort", label: "Insertion Sort", ready: true },
-  { value: "quick-sort", label: "Quick Sort (coming soon)", ready: false },
+  { value: "shell-sort", label: "Shell Sort", ready: true },
   { value: "merge-sort", label: "Farhan Sort (coming soon)", ready: false },
 ];
 
@@ -417,7 +483,7 @@ const insertionSortSteps = (arr) => {
       });
 
       if (a[j - 1].value > a[j].value) {
-        [a[j - 1], a[j]] = [a[j], a[j - 1]]; 
+        [a[j - 1], a[j]] = [a[j], a[j - 1]];
         steps.push({
           array: [...a],
           comparing: [j - 1, j],
@@ -426,7 +492,7 @@ const insertionSortSteps = (arr) => {
         });
         j--;
       } else {
-        break; 
+        break;
       }
     }
   }
@@ -441,7 +507,47 @@ const insertionSortSteps = (arr) => {
 
 // Shell Sort Logic Write
 const shellSortSteps = (arr) => {
+  let a = arr.map((v, i) => ({ id: i, value: v }));
+  const steps = [{ array: [...a], comparing: [], sortedIdx: [], gap: null, note: "Initial array." }];
+  const n = a.length;
 
+  for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+    for (let i = gap; i < n; i++) {
+      let j = i;
+      while (j >= gap) {
+        steps.push({
+          array: [...a],
+          comparing: [j - gap, j],
+          sortedIdx: [],
+          gap,
+          note: `Gap ${gap}: comparing ${a[j - gap].value} and ${a[j].value}.`,
+        });
+
+        if (a[j - gap].value > a[j].value) {
+          [a[j - gap], a[j]] = [a[j], a[j - gap]];
+          steps.push({
+            array: [...a],
+            comparing: [j - gap, j],
+            sortedIdx: [],
+            gap,
+            note: `Swapped — ${a[j].value} moved back ${gap} step(s).`,
+          });
+          j -= gap;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  steps.push({
+    array: [...a],
+    comparing: [],
+    sortedIdx: a.map((_, i) => i),
+    gap: null,
+    note: "Array fully sorted!",
+  });
+  return steps;
 };
 
 // Cocktail Sort Logic Write
@@ -513,19 +619,20 @@ const bogoSortSteps = (arr) => {
 const ALGO_CONFIG = {
   "bubble-sort": { steps: bubbleSortSteps, code: BubbleSortCodes },
   "selection-sort": { steps: selectionSortSteps, code: SelectionSortCodes },
-  "insertion-sort": { steps: insertionSortSteps, code: InsertionSortCodes},
+  "insertion-sort": { steps: insertionSortSteps, code: InsertionSortCodes },
+  "shell-sort": { steps: shellSortSteps, code: ShellSortCodes }
 };
 
 // Algorithms Time and Space Complexity
 const ALGO_COMPLEXITY = {
-  "bubble-sort":    { time: "O(n²)",       space: "O(1)" },
-  "selection-sort": { time: "O(n²)",       space: "O(1)" },
-  "insertion-sort": { time: "O(n²)",       space: "O(1)" },
-  "quick-sort":     { time: "O(n log n)",  space: "O(log n)" },
-  "merge-sort":     { time: "O(n log n)",  space: "O(n)" },
+  "bubble-sort": { time: "O(n²)", space: "O(1)" },
+  "selection-sort": { time: "O(n²)", space: "O(1)" },
+  "insertion-sort": { time: "O(n²)", space: "O(1)" },
+  "shell-sort": { time: "O(n²)", space: "O(1)" },
+  "merge-sort": { time: "O(n log n)", space: "O(n)" },
 };
 
-const BAR_WIDTH = 50;
+const BAR_WIDTH = 43;
 const BAR_GAP = 13.6;
 const MIN_BAR_HEIGHT = 36;
 
@@ -680,7 +787,7 @@ const Sorts = () => {
             {step.array.map((item, idx) => (
               <div
                 key={item.id}
-                className={`bar ${step.comparing.includes(idx) ? "bar--comparing" : ""} ${step.sortedIdx.includes(idx) ? "bar--sorted" : ""}`}
+                className={`bar ${step.comparing?.includes(idx) ? "bar--comparing" : ""} ${step.sortedIdx?.includes(idx) ? "bar--sorted" : ""}`}
                 style={{
                   left: idx * (BAR_WIDTH + BAR_GAP),
                   height: scaleHeight(item.value),

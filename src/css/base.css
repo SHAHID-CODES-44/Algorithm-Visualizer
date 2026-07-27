@@ -715,7 +715,7 @@ html, body, #root {
 /* input boxes */
 .sort-root .array-input-row {
   display: flex;
-  gap: 14px;
+  gap: 6.6px;
   flex-wrap: wrap;
   margin-top: 14px;
   padding: 16px;
