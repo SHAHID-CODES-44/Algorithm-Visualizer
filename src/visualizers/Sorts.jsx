@@ -241,11 +241,117 @@ end`,
 
 // Cocktail Sort Codes
 const CocktailSortCodes = {
-  cpp: ``,
-  java: ``,
-  python: ``,
-  go: ``,
-  ruby: ``
+  cpp: `void cocktailSort(int arr[], int n) {
+    bool swapped = true;
+    int start = 0, end = n - 1;
+    while (swapped) {
+        swapped = false;
+        for (int i = start; i < end; i++) {
+            if (arr[i] > arr[i + 1]) { swap(arr[i], arr[i + 1]); swapped = true; }
+        }
+        if (!swapped) break;
+        swapped = false;
+        end--;
+        for (int i = end - 1; i >= start; i--) {
+            if (arr[i] > arr[i + 1]) { swap(arr[i], arr[i + 1]); swapped = true; }
+        }
+        start++;
+    }
+}`,
+  java: `void cocktailSort(int[] arr) {
+    int n = arr.length;
+    boolean swapped = true;
+    int start = 0, end = n - 1;
+    while (swapped) {
+        swapped = false;
+        for (int i = start; i < end; i++) {
+            if (arr[i] > arr[i + 1]) {
+                int t = arr[i]; arr[i] = arr[i + 1]; arr[i + 1] = t;
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+        swapped = false;
+        end--;
+        for (int i = end - 1; i >= start; i--) {
+            if (arr[i] > arr[i + 1]) {
+                int t = arr[i]; arr[i] = arr[i + 1]; arr[i + 1] = t;
+                swapped = true;
+            }
+        }
+        start++;
+    }
+}`,
+  python: `def cocktail_sort(arr):
+    n = len(arr)
+    swapped = True
+    start, end = 0, n - 1
+    while swapped:
+        swapped = False
+        for i in range(start, end):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+        if not swapped:
+            break
+        swapped = False
+        end -= 1
+        for i in range(end - 1, start - 1, -1):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+        start += 1`,
+  go: `func cocktailSort(arr []int) {
+    n := len(arr)
+    swapped := true
+    start, end := 0, n-1
+    for swapped {
+        swapped = false
+        for i := start; i < end; i++ {
+            if arr[i] > arr[i+1] {
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                swapped = true
+            }
+        }
+        if !swapped {
+            break
+        }
+        swapped = false
+        end--
+        for i := end - 1; i >= start; i-- {
+            if arr[i] > arr[i+1] {
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                swapped = true
+            }
+        }
+        start++
+    }
+}`,
+  ruby: `def cocktail_sort(arr)
+  n = arr.length
+  swapped = true
+  start_i, end_i = 0, n - 1
+  while swapped
+    swapped = false
+    (start_i...end_i).each do |i|
+      if arr[i] > arr[i + 1]
+        arr[i], arr[i + 1] = arr[i + 1], arr[i]
+        swapped = true
+      end
+    end
+    break unless swapped
+    swapped = false
+    end_i -= 1
+    (start_i...end_i).to_a.reverse.each do |i|
+      if arr[i] > arr[i + 1]
+        arr[i], arr[i + 1] = arr[i + 1], arr[i]
+        swapped = true
+      end
+    end
+    start_i += 1
+  end
+  arr
+end`,
 };
 
 // Comb Sort Codes
@@ -362,7 +468,7 @@ const ALGO_OPTIONS = [
   { value: "selection-sort", label: "Selection Sort", ready: true },
   { value: "insertion-sort", label: "Insertion Sort", ready: true },
   { value: "shell-sort", label: "Shell Sort", ready: true },
-  { value: "merge-sort", label: "Farhan Sort (coming soon)", ready: false },
+  { value: "cocktail-sort", label: "Cocktail Sort", ready: true },
 ];
 
 // ---- LIGHTWEIGHT SYNTAX HIGHLIGHTER (VS Code Dark+ style, no external lib) ----
@@ -550,9 +656,50 @@ const shellSortSteps = (arr) => {
   return steps;
 };
 
-// Cocktail Sort Logic Write
 const cocktailSortSteps = (arr) => {
+  let a = arr.map((v, i) => ({ id: i, value: v }));
+  const steps = [{ array: [...a], comparing: [], sortedIdx: [], note: "Initial array." }];
+  let start = 0, end = a.length - 1;
+  let swapped = true;
 
+  while (swapped) {
+    swapped = false;
+
+    for (let i = start; i < end; i++) {
+      steps.push({
+        array: [...a], comparing: [i, i + 1], sortedIdx: [], note: `Comparing ${a[i].value} and ${a[i + 1].value}.`,
+      });
+      if (a[i].value > a[i + 1].value) {
+        [a[i], a[i + 1]] = [a[i + 1], a[i]];
+        swapped = true;
+        steps.push({
+          array: [...a], comparing: [i, i + 1], sortedIdx: [], note: `Swapped — moving right to left end.`,
+        });
+      }
+    }
+    if (!swapped) break;
+    end--;
+
+    swapped = false;
+    for (let i = end - 1; i >= start; i--) {
+      steps.push({
+        array: [...a], comparing: [i, i + 1], sortedIdx: [], note: `Comparing ${a[i].value} and ${a[i + 1].value}.`,
+      });
+      if (a[i].value > a[i + 1].value) {
+        [a[i], a[i + 1]] = [a[i + 1], a[i]];
+        swapped = true;
+        steps.push({
+          array: [...a], comparing: [i, i + 1], sortedIdx: [], note: `Swapped — moving left to right end.`,
+        });
+      }
+    }
+    start++;
+  }
+
+  steps.push({
+    array: [...a], comparing: [], sortedIdx: a.map((_, i) => i), note: "Array fully sorted! ✅",
+  });
+  return steps;
 };
 
 // Comb Sort Logic Write
@@ -620,7 +767,8 @@ const ALGO_CONFIG = {
   "bubble-sort": { steps: bubbleSortSteps, code: BubbleSortCodes },
   "selection-sort": { steps: selectionSortSteps, code: SelectionSortCodes },
   "insertion-sort": { steps: insertionSortSteps, code: InsertionSortCodes },
-  "shell-sort": { steps: shellSortSteps, code: ShellSortCodes }
+  "shell-sort": { steps: shellSortSteps, code: ShellSortCodes },
+  "cocktail-sort": { steps: cocktailSortSteps, code: CocktailSortCodes },
 };
 
 // Algorithms Time and Space Complexity
@@ -629,12 +777,8 @@ const ALGO_COMPLEXITY = {
   "selection-sort": { time: "O(n²)", space: "O(1)" },
   "insertion-sort": { time: "O(n²)", space: "O(1)" },
   "shell-sort": { time: "O(n²)", space: "O(1)" },
-  "merge-sort": { time: "O(n log n)", space: "O(n)" },
+  "cocktail-sort": { time: "O(n²)", space: "O(1)" },
 };
-
-const BAR_WIDTH = 43;
-const BAR_GAP = 13.6;
-const MIN_BAR_HEIGHT = 36;
 
 // Main Function
 const Sorts = () => {
@@ -651,8 +795,40 @@ const Sorts = () => {
   const timeoutsRef = useRef([]);
   const stageRef = useRef(null);
   const [stageHeight, setStageHeight] = useState(260);
+  const [stageWidth, setStageWidth] = useState(800);
 
   OnRefresh(phase === "playing");
+
+
+  // All Sorting Steps
+const step = allSteps[currentStep] || {
+  array: array.map((v, i) => ({ id: i, value: v })),
+  comparing: [],
+  sortedIdx: [],
+  note: "Enter or randomize an array, then press Start.",
+};
+
+const GAP = 10;
+const MIN_BAR_WIDTH = 20;
+const MAX_BAR_WIDTH = 60;
+const MIN_BAR_HEIGHT = 36;
+const count = step.array.length || 1;
+const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
+const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
+const dynamicMaxN = Math.min(40, Math.max(18, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
+
+ // Stage Width for Increasing Ns based on screensize. 
+  useEffect(() => {
+    if (!stageRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setStageHeight(entry.contentRect.height);
+        setStageWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(stageRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   // measure the bars stage so it always fills available screen space
   useEffect(() => {
@@ -718,13 +894,6 @@ const Sorts = () => {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const step = allSteps[currentStep] || {
-    array: array.map((v, i) => ({ id: i, value: v })),
-    comparing: [],
-    sortedIdx: [],
-    note: "Enter or randomize an array, then press Start.",
-  };
-
   return (
     <div className="sort-root">
       {/* NAVBAR */}
@@ -767,7 +936,7 @@ const Sorts = () => {
             <input
               type="number"
               min={2}
-              max={18}
+              max={dynamicMaxN}
               value={n}
               onChange={(e) => handleSizeChange(e.target.value)}
               disabled={phase === "playing"}
@@ -789,9 +958,9 @@ const Sorts = () => {
                 key={item.id}
                 className={`bar ${step.comparing?.includes(idx) ? "bar--comparing" : ""} ${step.sortedIdx?.includes(idx) ? "bar--sorted" : ""}`}
                 style={{
-                  left: idx * (BAR_WIDTH + BAR_GAP),
+                  left: idx * (barWidth + GAP),
                   height: scaleHeight(item.value),
-                  width: BAR_WIDTH,
+                  width: barWidth,
                 }}
               >
                 <span className="bar-value">{item.value}</span>
@@ -799,9 +968,9 @@ const Sorts = () => {
             ))}
           </div>
 
-          <div className="index-row" style={{ width: step.array.length * (BAR_WIDTH + BAR_GAP) }}>
+          <div className="index-row" style={{ width: step.array.length * (barWidth + GAP) }}>
             {step.array.map((_, idx) => (
-              <span key={idx} className="index-label" style={{ width: BAR_WIDTH, marginRight: BAR_GAP }}>
+              <span key={idx} className="index-label" style={{ width: barWidth, marginRight: GAP }}>
                 {idx}
               </span>
             ))}
