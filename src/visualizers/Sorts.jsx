@@ -1288,6 +1288,78 @@ const ALGO_OPTIONS = [
   { value: "bogo-sort", label: "Bogo Sort", ready: true },
 ];
 
+// Algorithm Explainations
+const ALGO_DEFINITIONS = {
+  "bubble-sort": {
+    definition: "A simple comparison-based algorithm that repeatedly steps through the array, compares adjacent elements, and swaps them if they're in the wrong order. Larger elements 'bubble up' to the end with each pass.",
+    example: "Like carbonation bubbles rising in a soda — the biggest bubbles (largest values) rise to the top (end of the array) fastest, one pass at a time.",
+  },
+  "selection-sort": {
+    definition: "Divides the array into a sorted and unsorted region. Repeatedly selects the smallest element from the unsorted region and moves it to the end of the sorted region.",
+    example: "Like picking the shortest kid in a lineup, one at a time, and placing them at the front — you're always 'selecting' the best candidate from what's left.",
+  },
+  "insertion-sort": {
+    definition: "Builds the sorted array one element at a time by taking each new element and inserting it into its correct position among the already-sorted elements before it.",
+    example: "Like sorting playing cards in your hand — you pick up one card at a time and insert it into the correct spot among the cards you're already holding.",
+  },
+  "shell-sort": {
+    definition: "An optimized version of Insertion Sort that compares elements far apart first (using a shrinking 'gap'), gradually reducing the gap until it becomes a regular Insertion Sort.",
+    example: "Like organizing a huge bookshelf by first grouping every 5th book, then every 3rd, then finally every book — big jumps first, fine-tuning last.",
+  },
+  "cocktail-sort": {
+    definition: "A variation of Bubble Sort that sorts in both directions on each pass — first left-to-right pushing large values to the end, then right-to-left pushing small values to the start.",
+    example: "Like a bartender shaking a cocktail shaker back and forth — sorting sweeps forward, then backward, forward, then backward.",
+  },
+  "comb-sort": {
+    definition: "Improves on Bubble Sort by comparing elements with a gap larger than 1, shrinking the gap each pass (by a factor of ~1.3) until it reaches 1, removing 'turtles' (small values stuck near the end) faster.",
+    example: "Like combing through tangled hair — wide comb strokes first to remove big tangles, then a fine comb for the last little snags.",
+  },
+  "merge-sort": {
+    definition: "A divide-and-conquer algorithm that recursively splits the array into halves, sorts each half, then merges the sorted halves back together.",
+    example: "Like sorting a deck of cards by splitting it into two piles, having a friend sort each pile separately, then merging the two sorted piles back into one.",
+  },
+  "quick-sort": {
+    definition: "A divide-and-conquer algorithm that picks a 'pivot' element, partitions the array so smaller elements go left and larger go right, then recursively sorts each side.",
+    example: "Like organizing people by height around a reference person (the pivot) — shorter people stand left, taller stand right, then repeat within each group.",
+  },
+  "heap-sort": {
+    definition: "Builds a binary heap from the array, then repeatedly extracts the maximum element from the heap and places it at the end of the array.",
+    example: "Like repeatedly picking the tallest person from a crowd and sending them to the back of a line, one at a time, until everyone's sorted by height.",
+  },
+  "counting-sort": {
+    definition: "A non-comparison sort that counts the occurrences of each distinct value, then uses those counts to place elements directly into their sorted position.",
+    example: "Like sorting exam scores by first counting how many students got each score (0-100), then listing them out in order using those counts.",
+  },
+  "bucket-sort": {
+    definition: "Distributes elements into several 'buckets' based on value range, sorts each bucket individually, then concatenates the buckets back together.",
+    example: "Like sorting mail by zip code range into different bins first, then alphabetizing names within each bin separately.",
+  },
+  "radix-sort": {
+    definition: "A non-comparison sort that processes integers digit by digit, from least significant to most significant, using a stable sort (like Counting Sort) at each digit position.",
+    example: "Like sorting a stack of ID cards first by the last digit, then the second-to-last, and so on — each pass refines the order further.",
+  },
+  "tim-sort": {
+    definition: "A hybrid sorting algorithm derived from Merge Sort and Insertion Sort, designed to perform well on real-world data by exploiting existing order (runs) in the array.",
+    example: "Like a librarian who notices some shelves are already partially organized, sorts small messy sections with quick fixes, then merges everything using a bigger strategy.",
+  },
+  "intro-sort": {
+    definition: "A hybrid algorithm that starts with Quick Sort, switches to Heap Sort if recursion goes too deep (avoiding worst-case slowdowns), and uses Insertion Sort for small subarrays.",
+    example: "Like a hiker who starts on the fast trail (Quick Sort), switches to the safe trail (Heap Sort) if things get too steep, and walks carefully (Insertion Sort) near the finish.",
+  },
+  "cycle-sort": {
+    definition: "Minimizes the number of writes to the array by moving each element directly to its final sorted position in cycles, ideal when write operations are expensive.",
+    example: "Like a game of musical chairs where each person walks directly to their assigned seat in one move, rather than shuffling around repeatedly.",
+  },
+  "pancake-sort": {
+    definition: "Sorts by repeatedly 'flipping' a prefix of the array (like flipping a stack of pancakes with a spatula) to move the largest unsorted element to its correct position.",
+    example: "Like a chef stacking pancakes by size — flipping a stack of pancakes over and over with a spatula until the biggest ones settle at the bottom.",
+  },
+  "bogo-sort": {
+    definition: "A deliberately inefficient 'algorithm' that randomly shuffles the array and checks if it's sorted, repeating until it gets lucky. Used to illustrate why smart algorithms matter.",
+    example: "Like throwing a deck of cards in the air, picking them up in whatever order they land, and hoping they happen to be sorted — again, and again, and again until Sorted.",
+  },
+};
+
 // ---- LIGHTWEIGHT SYNTAX HIGHLIGHTER (VS Code Dark+ style, no external lib) ----
 const KEYWORDS = "int|void|func|def|function|let|const|var|return|if|for|while|do|each|class|public|private|include|using|namespace|import|package|end|then|in|swap";
 const TOKEN_REGEX = new RegExp(
@@ -1965,15 +2037,15 @@ const Sorts = () => {
     note: "Enter or randomize an array, then press Start.",
   };
 
-const GAP = 12;
-const MIN_BAR_WIDTH = 8;
-const MAX_BAR_WIDTH = 50;
-const MIN_BAR_HEIGHT = 36;   // ← unchanged, leave this alone
-const count = step.array.length || 1;
-const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
-const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
-const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
-  
+  const MIN_BAR_WIDTH = 12;   // smallest a bar should ever get, for legibility
+  const GAP = 8;
+  const MAX_BAR_WIDTH = 49;
+  const MIN_BAR_HEIGHT = 36;   // ← unchanged, leave this alone
+  const count = step.array.length || 1;
+  const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
+  const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
+  const dynamicMaxN = Math.min(99, Math.max(10, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
+
   // Stage Width for Increasing Ns based on screensize. 
   useEffect(() => {
     if (!stageRef.current) return;
@@ -2008,7 +2080,7 @@ const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WI
     MIN_BAR_HEIGHT + (val / maxVal) * (maxBarHeight - MIN_BAR_HEIGHT);
 
   const handleRandom = () => {
-    const size = Math.min(Math.max(parseInt(n) || 8, 2), 20);
+    const size = Math.min(Math.max(parseInt(n) || 8, 2), dynamicMaxN);
     setN(String(size));
     const arr = Array.from({ length: size }, () => Math.floor(Math.random() * 190) + 10);
     setArray(arr);
@@ -2018,7 +2090,7 @@ const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WI
   };
 
   const handleSizeChange = (val) => {
-    const size = Math.min(Math.max(parseInt(val) || 0, 0), 20);
+    const size = Math.min(Math.max(parseInt(val) || 0, 0), dynamicMaxN);
     setN(val);
     setArray(Array.from({ length: size }, (_, i) => array[i] || ""));
     setAllSteps([]);
@@ -2084,8 +2156,9 @@ const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WI
               className="speed-slider"
             />
             <div className="speed-ends">
-              <span>Fast</span>
               <span>Slow</span>
+              <span>Medium</span>
+              <span>Fast</span>
             </div>
           </div>
           <label className="sort-n-label">
@@ -2134,7 +2207,7 @@ const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WI
           </div>
 
           <div className="array-input-row">
-            {array.length === 0 && <span className="array-empty-hint">Set n, then type values or hit Random</span>}
+            {array.length === 0 && <span className="array-empty-hint">Set n, then type values or hit Randomb <b>(Set N as per your screen size)</b></span>}
             {step.array.map((item, i) => (
               <input
                 key={i}
@@ -2166,25 +2239,34 @@ const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WI
               See Process
             </button>
             <button
+              className={`side-tab-btn ${panelTab === "explain" ? "active" : ""}`}
+              onClick={() => setPanelTab("explain")}
+            >
+              Explaination
+            </button>
+            <button
               className={`side-tab-btn ${panelTab === "code" ? "active" : ""}`}
               onClick={() => setPanelTab("code")}
             >
-              See Code →
+              See Code
             </button>
           </div>
 
           {panelTab === "process" ? (
             <div className="process-list">
-              {allSteps.length === 0 && <p className="process-empty">Steps will appear here once you press Start.</p>}
-              {allSteps.map((s, i) => (
-                <div
-                  key={i}
-                  className={`process-item ${i === currentStep ? "process-item--active" : i < currentStep ? "process-item--done" : ""}`}
-                >
-                  <span className="process-num">{i + 1}</span>
-                  <span>{s.note}</span>
-                </div>
-              ))}
+              {/* unchanged */}
+            </div>
+          ) : panelTab === "explain" ? (
+            <div className="explain-panel">
+              <h3 className="explain-title">{ALGO_OPTIONS.find(o => o.value === algo)?.label}</h3>
+              <div className="explain-block">
+                <span className="explain-label">Definition</span>
+                <p>{ALGO_DEFINITIONS[algo]?.definition}</p>
+              </div>
+              <div className="explain-block">
+                <span className="explain-label">Example</span>
+                <p>{ALGO_DEFINITIONS[algo]?.example}</p>
+              </div>
             </div>
           ) : (
             <div className="code-panel">

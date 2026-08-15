@@ -7,7 +7,7 @@ const Home = () => {
         <div className="home-main-container">
             <h1>Checkout Our Visualizers</h1>
             <br />
-           <Link to="/Recursion">Tower Of Hanoi</Link>
+           <Link to="/Recursion">Recursion</Link>
            <br />
            <br />
            <Link to="/Sorts">Sorts</Link>
