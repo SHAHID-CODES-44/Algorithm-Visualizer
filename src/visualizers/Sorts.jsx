@@ -1274,6 +1274,7 @@ const ALGO_OPTIONS = [
   { value: "insertion-sort", label: "Insertion Sort", ready: true },
   { value: "shell-sort", label: "Shell Sort", ready: true },
   { value: "cocktail-sort", label: "Cocktail Sort", ready: true },
+<<<<<<< HEAD
   { value: "comb-sort", label: "Comb Sort", ready: true },
   { value: "merge-sort", label: "Merge Sort", ready: true },
   { value: "quick-sort", label: "Quick Sort", ready: true },
@@ -1286,6 +1287,8 @@ const ALGO_OPTIONS = [
   { value: "cycle-sort", label: "Cycle Sort", ready: true },
   { value: "pancake-sort", label: "pancake Sort", ready: true },
   { value: "bogo-sort", label: "Bogo Sort", ready: true },
+=======
+>>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 ];
 
 // ---- LIGHTWEIGHT SYNTAX HIGHLIGHTER (VS Code Dark+ style, no external lib) ----
@@ -1475,7 +1478,10 @@ const shellSortSteps = (arr) => {
   return steps;
 };
 
+<<<<<<< HEAD
 // Cocktail Sort Steps  
+=======
+>>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 const cocktailSortSteps = (arr) => {
   let a = arr.map((v, i) => ({ id: i, value: v }));
   const steps = [{ array: [...a], comparing: [], sortedIdx: [], note: "Initial array." }];
@@ -1517,7 +1523,11 @@ const cocktailSortSteps = (arr) => {
   }
 
   steps.push({
+<<<<<<< HEAD
     array: [...a], comparing: [], sortedIdx: a.map((_, i) => i), note: "Array fully Sorted",
+=======
+    array: [...a], comparing: [], sortedIdx: a.map((_, i) => i), note: "Array fully sorted! ✅",
+>>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
   });
   return steps;
 };
@@ -1901,6 +1911,7 @@ const ALGO_CONFIG = {
   "selection-sort": { steps: selectionSortSteps, code: SelectionSortCodes },
   "insertion-sort": { steps: insertionSortSteps, code: InsertionSortCodes },
   "shell-sort": { steps: shellSortSteps, code: ShellSortCodes },
+<<<<<<< HEAD
   "cocktail-sort": { steps: cocktailSortSteps, code: CocktailSortCodes},
   "comb-sort": { steps: combSortSteps, code: CombSortCodes},
   "merge-sort": { steps: mergeSortSteps, code: MergeSortCodes},
@@ -1914,6 +1925,9 @@ const ALGO_CONFIG = {
   "cycle-sort": {steps: cycleSortSteps, code: CycleSortCodes},
   "pancake-sort": {steps: pancakeSortSteps, code: PancakeSortCodes},
   "bogo-sort": {steps: bogoSortSteps, code: BogoSortCodes}
+=======
+  "cocktail-sort": { steps: cocktailSortSteps, code: CocktailSortCodes },
+>>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 };
 
 // Algorithms Time and Space Complexity
@@ -1923,6 +1937,7 @@ const ALGO_COMPLEXITY = {
   "insertion-sort": { time: "O(n²)", space: "O(1)" },
   "shell-sort": { time: "O(n²)", space: "O(1)" },
   "cocktail-sort": { time: "O(n²)", space: "O(1)" },
+<<<<<<< HEAD
   "comb-sort": { time: "O(n²)", space: "O(1)" },
   "merge-sort": { time: "O(n log n)", space: "O(n)" },
   "quick-sort": { time: "O(n log n)", space: "O(log n)" },
@@ -1935,11 +1950,9 @@ const ALGO_COMPLEXITY = {
   "cycle-sort": { time: "O(n²)", space: "O(1)" },
   "pancake-sort": { time: "O(n²)", space: "O(1)" },
   "bogo-sort": { time: "O((n+1)!)", space: "O(1)" },
+=======
+>>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 };
-
-const BAR_WIDTH = 43;
-const BAR_GAP = 13.6;
-const MIN_BAR_HEIGHT = 36;
 
 // Main Function
 const Sorts = () => {
@@ -1956,8 +1969,40 @@ const Sorts = () => {
   const timeoutsRef = useRef([]);
   const stageRef = useRef(null);
   const [stageHeight, setStageHeight] = useState(260);
+  const [stageWidth, setStageWidth] = useState(800);
 
   OnRefresh(phase === "playing");
+
+
+  // All Sorting Steps
+const step = allSteps[currentStep] || {
+  array: array.map((v, i) => ({ id: i, value: v })),
+  comparing: [],
+  sortedIdx: [],
+  note: "Enter or randomize an array, then press Start.",
+};
+
+const GAP = 10;
+const MIN_BAR_WIDTH = 20;
+const MAX_BAR_WIDTH = 60;
+const MIN_BAR_HEIGHT = 36;
+const count = step.array.length || 1;
+const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
+const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
+const dynamicMaxN = Math.min(40, Math.max(18, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
+
+ // Stage Width for Increasing Ns based on screensize. 
+  useEffect(() => {
+    if (!stageRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setStageHeight(entry.contentRect.height);
+        setStageWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(stageRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   // measure the bars stage so it always fills available screen space
   useEffect(() => {
@@ -2023,13 +2068,6 @@ const Sorts = () => {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const step = allSteps[currentStep] || {
-    array: array.map((v, i) => ({ id: i, value: v })),
-    comparing: [],
-    sortedIdx: [],
-    note: "Enter or randomize an array, then press Start.",
-  };
-
   return (
     <div className="sort-root">
       {/* NAVBAR */}
@@ -2072,7 +2110,7 @@ const Sorts = () => {
             <input
               type="number"
               min={2}
-              max={18}
+              max={dynamicMaxN}
               value={n}
               onChange={(e) => handleSizeChange(e.target.value)}
               disabled={phase === "playing"}
@@ -2094,9 +2132,9 @@ const Sorts = () => {
                 key={item.id}
                 className={`bar ${step.comparing?.includes(idx) ? "bar--comparing" : ""} ${step.sortedIdx?.includes(idx) ? "bar--sorted" : ""}`}
                 style={{
-                  left: idx * (BAR_WIDTH + BAR_GAP),
+                  left: idx * (barWidth + GAP),
                   height: scaleHeight(item.value),
-                  width: BAR_WIDTH,
+                  width: barWidth,
                 }}
               >
                 <span className="bar-value">{item.value}</span>
@@ -2104,9 +2142,9 @@ const Sorts = () => {
             ))}
           </div>
 
-          <div className="index-row" style={{ width: step.array.length * (BAR_WIDTH + BAR_GAP) }}>
+          <div className="index-row" style={{ width: step.array.length * (barWidth + GAP) }}>
             {step.array.map((_, idx) => (
-              <span key={idx} className="index-label" style={{ width: BAR_WIDTH, marginRight: BAR_GAP }}>
+              <span key={idx} className="index-label" style={{ width: barWidth, marginRight: GAP }}>
                 {idx}
               </span>
             ))}
