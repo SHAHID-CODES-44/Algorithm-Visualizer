@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import TowerOfHanoi from "../visualizers/TowerOfHanoi";
+import TowerOfHanoi from "../visualizers/Recursion";
 import Sorts from "../visualizers/Sorts";
 
 const Home = () => {
@@ -7,7 +7,7 @@ const Home = () => {
         <div className="home-main-container">
             <h1>Checkout Our Visualizers</h1>
             <br />
-           <Link to="/TowerOfHanoi">Tower Of Hanoi</Link>
+           <Link to="/Recursion">Tower Of Hanoi</Link>
            <br />
            <br />
            <Link to="/Sorts">Sorts</Link>

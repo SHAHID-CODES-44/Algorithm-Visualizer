@@ -1965,15 +1965,15 @@ const Sorts = () => {
     note: "Enter or randomize an array, then press Start.",
   };
 
-  const GAP = 10;
-  const MIN_BAR_WIDTH = 20;
-  const MAX_BAR_WIDTH = 60;
-  const MIN_BAR_HEIGHT = 36;
-  const count = step.array.length || 1;
-  const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
-  const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
-  const dynamicMaxN = Math.min(40, Math.max(18, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
-
+const GAP = 12;
+const MIN_BAR_WIDTH = 8;
+const MAX_BAR_WIDTH = 50;
+const MIN_BAR_HEIGHT = 36;   // ← unchanged, leave this alone
+const count = step.array.length || 1;
+const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
+const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
+const dynamicMaxN = Math.min(16, Math.max(6, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
+  
   // Stage Width for Increasing Ns based on screensize. 
   useEffect(() => {
     if (!stageRef.current) return;

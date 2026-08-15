@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home.jsx'
-import TowerOfHanoi from "./visualizers/TowerOfHanoi.jsx";
+import Recursion from "./visualizers/Recursion.jsx";
 import Sorts from './visualizers/Sorts.jsx'
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={<Home/>} />
-        <Route path='/TowerOfHanoi' element={<TowerOfHanoi/>} />
+        <Route path='/Recursion' element={<Recursion/>} />
         <Route path='/Sorts' element={<Sorts/>} />
       </Routes>
     </>
