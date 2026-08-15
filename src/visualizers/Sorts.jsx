@@ -1274,7 +1274,6 @@ const ALGO_OPTIONS = [
   { value: "insertion-sort", label: "Insertion Sort", ready: true },
   { value: "shell-sort", label: "Shell Sort", ready: true },
   { value: "cocktail-sort", label: "Cocktail Sort", ready: true },
-<<<<<<< HEAD
   { value: "comb-sort", label: "Comb Sort", ready: true },
   { value: "merge-sort", label: "Merge Sort", ready: true },
   { value: "quick-sort", label: "Quick Sort", ready: true },
@@ -1287,8 +1286,6 @@ const ALGO_OPTIONS = [
   { value: "cycle-sort", label: "Cycle Sort", ready: true },
   { value: "pancake-sort", label: "pancake Sort", ready: true },
   { value: "bogo-sort", label: "Bogo Sort", ready: true },
-=======
->>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 ];
 
 // ---- LIGHTWEIGHT SYNTAX HIGHLIGHTER (VS Code Dark+ style, no external lib) ----
@@ -1478,10 +1475,7 @@ const shellSortSteps = (arr) => {
   return steps;
 };
 
-<<<<<<< HEAD
 // Cocktail Sort Steps  
-=======
->>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 const cocktailSortSteps = (arr) => {
   let a = arr.map((v, i) => ({ id: i, value: v }));
   const steps = [{ array: [...a], comparing: [], sortedIdx: [], note: "Initial array." }];
@@ -1523,11 +1517,7 @@ const cocktailSortSteps = (arr) => {
   }
 
   steps.push({
-<<<<<<< HEAD
-    array: [...a], comparing: [], sortedIdx: a.map((_, i) => i), note: "Array fully Sorted",
-=======
     array: [...a], comparing: [], sortedIdx: a.map((_, i) => i), note: "Array fully sorted! ✅",
->>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
   });
   return steps;
 };
@@ -1802,7 +1792,7 @@ const introSortSteps = (arr) => {
     let i = low - 1;
     for (let j = low; j < high; j++) {
       steps.push({ array: [...a], comparing: [j, high], sortedIdx: [], note: `Comparing ${a[j].value} with pivot ${pivot.value}.` });
-      if (a[j].value < pivot.value) { i++; [a[i], a[j]] = [a[j], a[i]]; steps.push({ array: [...a], comparing: [i, j], sortedIdx: [], note: `Swapped.` }); }
+      if (a[j].value < pivot.value) { i++;[a[i], a[j]] = [a[j], a[i]]; steps.push({ array: [...a], comparing: [i, j], sortedIdx: [], note: `Swapped.` }); }
     }
     [a[i + 1], a[high]] = [a[high], a[i + 1]];
     steps.push({ array: [...a], comparing: [i + 1, high], sortedIdx: [], note: `Pivot placed at ${i + 1}.` });
@@ -1888,7 +1878,7 @@ const bogoSortSteps = (arr) => {
   const steps = [{ array: [...a], comparing: [], sortedIdx: [], note: "Initial array." }];
 
   const isSorted = (a) => { for (let i = 1; i < a.length; i++) if (a[i - 1].value > a[i].value) return false; return true; };
-  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } };
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } };
 
   let attempts = 0;
   const MAX_ATTEMPTS = 200; // safety cap — bogo sort is O((n+1)!), only usable for tiny n
@@ -1911,23 +1901,19 @@ const ALGO_CONFIG = {
   "selection-sort": { steps: selectionSortSteps, code: SelectionSortCodes },
   "insertion-sort": { steps: insertionSortSteps, code: InsertionSortCodes },
   "shell-sort": { steps: shellSortSteps, code: ShellSortCodes },
-<<<<<<< HEAD
-  "cocktail-sort": { steps: cocktailSortSteps, code: CocktailSortCodes},
-  "comb-sort": { steps: combSortSteps, code: CombSortCodes},
-  "merge-sort": { steps: mergeSortSteps, code: MergeSortCodes},
-  "quick-sort": {steps: quickSortSteps, code: QuickSortCodes},
-  "heap-sort": {steps: heapSortSteps, code: HeapSortCodes},
-  "counting-sort": {steps: countingSortSteps, code: CountingSortCodes},
-  "bucket-sort": {steps: bucketSortSteps, code: BucketSortCodes},
-  "radix-sort": {steps: radixSortSteps, code: RadixSortCodes},
-  "tim-sort": {steps: timSortSteps, code: TimSortCodes},
-  "intro-sort": {steps: introSortSteps, code: IntroSortCodes},
-  "cycle-sort": {steps: cycleSortSteps, code: CycleSortCodes},
-  "pancake-sort": {steps: pancakeSortSteps, code: PancakeSortCodes},
-  "bogo-sort": {steps: bogoSortSteps, code: BogoSortCodes}
-=======
   "cocktail-sort": { steps: cocktailSortSteps, code: CocktailSortCodes },
->>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
+  "comb-sort": { steps: combSortSteps, code: CombSortCodes },
+  "merge-sort": { steps: mergeSortSteps, code: MergeSortCodes },
+  "quick-sort": { steps: quickSortSteps, code: QuickSortCodes },
+  "heap-sort": { steps: heapSortSteps, code: HeapSortCodes },
+  "counting-sort": { steps: countingSortSteps, code: CountingSortCodes },
+  "bucket-sort": { steps: bucketSortSteps, code: BucketSortCodes },
+  "radix-sort": { steps: radixSortSteps, code: RadixSortCodes },
+  "tim-sort": { steps: timSortSteps, code: TimSortCodes },
+  "intro-sort": { steps: introSortSteps, code: IntroSortCodes },
+  "cycle-sort": { steps: cycleSortSteps, code: CycleSortCodes },
+  "pancake-sort": { steps: pancakeSortSteps, code: PancakeSortCodes },
+  "bogo-sort": { steps: bogoSortSteps, code: BogoSortCodes }
 };
 
 // Algorithms Time and Space Complexity
@@ -1937,7 +1923,6 @@ const ALGO_COMPLEXITY = {
   "insertion-sort": { time: "O(n²)", space: "O(1)" },
   "shell-sort": { time: "O(n²)", space: "O(1)" },
   "cocktail-sort": { time: "O(n²)", space: "O(1)" },
-<<<<<<< HEAD
   "comb-sort": { time: "O(n²)", space: "O(1)" },
   "merge-sort": { time: "O(n log n)", space: "O(n)" },
   "quick-sort": { time: "O(n log n)", space: "O(log n)" },
@@ -1950,8 +1935,6 @@ const ALGO_COMPLEXITY = {
   "cycle-sort": { time: "O(n²)", space: "O(1)" },
   "pancake-sort": { time: "O(n²)", space: "O(1)" },
   "bogo-sort": { time: "O((n+1)!)", space: "O(1)" },
-=======
->>>>>>> 022994ad9a53e5032508bf6232b0c8521e93c7ed
 };
 
 // Main Function
@@ -1975,23 +1958,23 @@ const Sorts = () => {
 
 
   // All Sorting Steps
-const step = allSteps[currentStep] || {
-  array: array.map((v, i) => ({ id: i, value: v })),
-  comparing: [],
-  sortedIdx: [],
-  note: "Enter or randomize an array, then press Start.",
-};
+  const step = allSteps[currentStep] || {
+    array: array.map((v, i) => ({ id: i, value: v })),
+    comparing: [],
+    sortedIdx: [],
+    note: "Enter or randomize an array, then press Start.",
+  };
 
-const GAP = 10;
-const MIN_BAR_WIDTH = 20;
-const MAX_BAR_WIDTH = 60;
-const MIN_BAR_HEIGHT = 36;
-const count = step.array.length || 1;
-const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
-const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
-const dynamicMaxN = Math.min(40, Math.max(18, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
+  const GAP = 10;
+  const MIN_BAR_WIDTH = 20;
+  const MAX_BAR_WIDTH = 60;
+  const MIN_BAR_HEIGHT = 36;
+  const count = step.array.length || 1;
+  const rawBarWidth = Math.floor((stageWidth - GAP * (count - 1)) / count);
+  const barWidth = Math.min(Math.max(rawBarWidth, MIN_BAR_WIDTH), MAX_BAR_WIDTH);
+  const dynamicMaxN = Math.min(40, Math.max(18, Math.floor(stageWidth / (MIN_BAR_WIDTH + GAP))));
 
- // Stage Width for Increasing Ns based on screensize. 
+  // Stage Width for Increasing Ns based on screensize. 
   useEffect(() => {
     if (!stageRef.current) return;
     const ro = new ResizeObserver((entries) => {
@@ -2063,7 +2046,7 @@ const dynamicMaxN = Math.min(40, Math.max(18, Math.floor(stageWidth / (MIN_BAR_W
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(CODE[lang]);
+    navigator.clipboard.writeText(ALGO_CONFIG[algo].code[lang]);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
