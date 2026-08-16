@@ -2254,7 +2254,16 @@ const Sorts = () => {
 
           {panelTab === "process" ? (
             <div className="process-list">
-              {/* unchanged */}
+              {allSteps.length === 0 && <p className="process-empty">Steps will appear here once you press Start.</p>}
+              {allSteps.map((s, i) => (
+                <div
+                  key={i}
+                  className={`process-item ${i === currentStep ? "process-item--active" : i < currentStep ? "process-item--done" : ""}`}
+                >
+                  <span className="process-num">{i + 1}</span>
+                  <span>{s.note}</span>
+                </div>
+              ))}
             </div>
           ) : panelTab === "explain" ? (
             <div className="explain-panel">
