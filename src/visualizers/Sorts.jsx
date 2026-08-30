@@ -1212,7 +1212,7 @@ def pancake_sort(arr)
 end`,
 };
 
-// ---- BOGO SORT ----
+// ---- STANDARD BOGO SORT ----
 const BogoSortCodes = {
   cpp: `bool isSorted(int arr[], int n) {
     for (int i = 1; i < n; i++) if (arr[i-1] > arr[i]) return false;
@@ -1265,6 +1265,85 @@ def bogo_sort(arr)
   arr
 end`,
 };
+
+// ---- DETERMINISTIC BOGO SORT ----
+const DeterministicBogoSortCodes = {
+  cpp: `bool isSorted(int arr[], int n) {
+    for (int i = 1; i < n; i++) if (arr[i-1] > arr[i]) return false;
+    return true;
+}
+// Uses systematic lexicographical permutations instead of random shuffles
+void deterministicBogoSort(int arr[], int n) {
+    std::sort(arr, arr + n); // Start at the absolute first permutation
+    while (!isSorted(arr, n)) {
+        std::next_permutation(arr, arr + n);
+    }
+}`,
+
+  java: `boolean isSorted(int[] arr) {
+    for (int i = 1; i < arr.length; i++)
+        if (arr[i - 1] > arr[i]) return false;
+    return true;
+}
+// Uses Heap's Algorithm recursively to try every unique shuffle
+boolean findPermutation(int[] arr, int n) {
+    if (n == 1) return isSorted(arr);
+    for (int i = 0; i < n; i++) {
+        if (findPermutation(arr, n - 1)) return true;
+        int j = (n % 2 == 0) ? i : 0;
+        int t = arr[s]; arr[s] = arr[n - 1]; arr[n - 1] = t;
+    }
+    return false;
+}
+void deterministicBogoSort(int[] arr) {
+    findPermutation(arr, arr.length);
+}`,
+
+  python: `import itertools
+
+def is_sorted(arr):
+    return all(arr[i] <= arr[i+1] for i in range(len(arr)-1))
+
+# Cycles through unique permutations without repeating
+def deterministic_bogo_sort(arr):
+    for p in itertools.permutations(arr):
+        if is_sorted(p):
+            return list(p)
+    return arr`,
+
+  go: `func isSorted(arr []int) bool {
+    for i := 1; i < len(arr); i++ {
+        if arr[i-1] > arr[i] { return false }
+    }
+    return true
+}
+// Uses a recursive Heap's Algorithm to systematically shuffle
+func deterministicBogoSort(arr []int, n int) bool {
+    if n == 1 { return isSorted(arr) }
+    for i := 0; i < n; i++ {
+        if deterministicBogoSort(arr, n-1) { return true }
+        if n%2 == 0 {
+            arr[i], arr[n-1] = arr[n-1], arr[i]
+        } else {
+            arr[0], arr[n-1] = arr[n-1], arr[0]
+        }
+    }
+    return false
+}`,
+
+  ruby: `def sorted?(arr)
+  arr.each_cons(2).all? { |a, b| a <= b }
+end
+
+# Uses Ruby's built-in unique permutation generator
+def deterministic_bogo_sort(arr)
+  arr.permutation.each do |p|
+    return p if sorted?(p)
+  end
+end`
+};
+
+
 // ---------------------------------------------- CODE STORAGE ENDS FOR ALL SORTS ----------------------------------------
 
 // ---- ALGORITHM LIST (dropdown works, only bubble-sort is implemented) ----
@@ -1286,6 +1365,7 @@ const ALGO_OPTIONS = [
   { value: "cycle-sort", label: "Cycle Sort", ready: true },
   { value: "pancake-sort", label: "pancake Sort", ready: true },
   { value: "bogo-sort", label: "Bogo Sort", ready: true },
+  { value: "d-bogo-sort", label: "D Bogo Sort", ready: false },
 ];
 
 // Algorithm Explainations
@@ -1357,6 +1437,10 @@ const ALGO_DEFINITIONS = {
   "bogo-sort": {
     definition: "A deliberately inefficient 'algorithm' that randomly shuffles the array and checks if it's sorted, repeating until it gets lucky. Used to illustrate why smart algorithms matter.",
     example: "Like throwing a deck of cards in the air, picking them up in whatever order they land, and hoping they happen to be sorted — again, and again, and again until Sorted.",
+  },
+  "d-bogo-sort": {
+    definition: "A systematically inefficient algorithm that systematically generates every single mathematical permutation of an array one by one until it finds the sorted one. Used to guarantee an answer while highlighting the extreme performance cost of brute-force logic.",
+    example: "Like laying out a deck of cards, writing down every single possible ordering of them in a massive notebook, and checking each one page-by-page from top to bottom without skipping a single combo until you hit the sorted layout.",
   },
 };
 
@@ -1964,6 +2048,10 @@ const bogoSortSteps = (arr) => {
   steps.push({ array: [...a], comparing: [], sortedIdx: sorted ? a.map((_, i) => i) : [], note: sorted ? "Array fully sorted (by luck)! ✅" : "Gave up after max attempts — bogo sort is impractical here." });
   return steps;
 };
+
+const DBogoSortSteps = (arr) => {
+//  Upcoming Sort Basically this bogo sort remembers a shuffle it did and never repeats it. (Less Foolish than standard one)
+}
 // ----------------------------------------------------- STEPS ENDED FOR ALL SORTS -----------------------------------------------------------
 
 
@@ -1985,7 +2073,8 @@ const ALGO_CONFIG = {
   "intro-sort": { steps: introSortSteps, code: IntroSortCodes },
   "cycle-sort": { steps: cycleSortSteps, code: CycleSortCodes },
   "pancake-sort": { steps: pancakeSortSteps, code: PancakeSortCodes },
-  "bogo-sort": { steps: bogoSortSteps, code: BogoSortCodes }
+  "bogo-sort": { steps: bogoSortSteps, code: BogoSortCodes },
+  "d-bogo-sort": { steps: DBogoSortSteps, code: DeterministicBogoSortCodes },
 };
 
 // Algorithms Time and Space Complexity
