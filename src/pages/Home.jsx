@@ -36,7 +36,7 @@ const Home = () => {
                         </div>
                         <p className="card-description">{item.description}</p>
                         <Link to={item.path} className="card-button">
-                            Launch Visualizer &rarr;
+                            Explore &rarr;
                         </Link>
                     </div>
                 ))}
