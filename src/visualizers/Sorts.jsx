@@ -2095,7 +2095,7 @@ const ALGO_COMPLEXITY = {
   "intro-sort": { time: "O(n log n)", space: "O(log n)" },
   "cycle-sort": { time: "O(n²)", space: "O(1)" },
   "pancake-sort": { time: "O(n²)", space: "O(1)" },
-  "bogo-sort": { time: "O((n+1)!)", space: "O(1)" },
+  "d-bogo-sort": { time: "O((n+1)!)", space: "O(1)" },
 };
 
 // Main Function
@@ -2106,7 +2106,7 @@ const Sorts = () => {
   const [allSteps, setAllSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [phase, setPhase] = useState("idle");
-  const [speed, setSpeed] = useState(650); // ms per step
+  const [speed, setSpeed] = useState(0); // FARHAN PAGAL
   const [panelTab, setPanelTab] = useState("process");
   const [lang, setLang] = useState("go");
   const [copied, setCopied] = useState(false);
@@ -2223,9 +2223,9 @@ const Sorts = () => {
           ))}
         </select>
         <span className="complexity-badge">
-          ⏱ Time: <strong>{ALGO_COMPLEXITY[algo].time}</strong>
-          &nbsp;·&nbsp;
-          🛢️ Space: <strong>{ALGO_COMPLEXITY[algo].space}</strong>
+        ⏱ Time: <strong>{ALGO_COMPLEXITY[algo]?.time ?? "—"}</strong>
+&nbsp;·&nbsp;
+🛢️ Space: <strong>{ALGO_COMPLEXITY[algo]?.space ?? "—"}</strong>
         </span>
         {!ALGO_OPTIONS.find(o => o.value === algo)?.ready && (
           <span className="algo-soon-badge">🚧 coming soon — showing Bubble Sort</span>
