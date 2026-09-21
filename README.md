@@ -3,18 +3,18 @@
 A visual tool to understand DSA algorithms step by step.
 
 ## Current Visualizations
-- Tower of Hanoi
+- Recursion Questions
+- Sorting Algorithms
 
 ## Features
-- Step by step visualization with Prev / Next controls
-- Autoplay with speed control
-- Full process view
-- Supports up to 7 disks
+- Step by Step Algorithm Preview
+- Speed Control
+- Users Input for n and elements
+- Random Button for auto generation
 
 ## Tech
 - React
 - CSS
 
-## Run Locally
-npm install
-npm run dev
+## Use Case
+- Use it while solving Questions for Recursion and Sorting
