@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../css/base.css";
 import OnRefresh from "../pages/OnRefresh";
+import { param } from "framer-motion/client";
 
 // --------------------------------- CODE SNIPPETS FOR ALL RECURSION PROBLEMS ----------------------------------------
 const TowerOfHanoiCodes = {
@@ -50,13 +51,48 @@ const TowerOfHanoiCodes = {
   hanoi(n - 1, helper, source, destination)
 end`,
 };
+
+const FactorialCodes = {
+  cpp: `long long factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}`,
+  java: `long factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}`,
+  python: `def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)`,
+  go: `func factorial(n int) *big.Int {
+    if n <= 1 {
+        return big.NewInt(1)
+    }
+    return new(big.Int).Mul(big.NewInt(int64(n)), factorial(n-1))
+}`,
+  ruby: `def factorial(n)
+  return 1 if n <= 1
+  n * factorial(n - 1)
+end`,
+};
+
 // ---------------------------------------------- CODE STORAGE ENDS FOR ALL RECURSION PROBLEMS ----------------------------------------
 
 // ---- PROBLEM LIST (dropdown works, only Tower of Hanoi is implemented) ----
 const RECURSION_OPTIONS = [
+  { value: "factorial", label: "Factorial", ready: true },
+  { value: "fibonacci", label: "Fibonacci", ready: false },
+  { value: "sum-of-array", label: "Sum of Array", ready: false },
+  { value: "power", label: "Power (Exponentiation)", ready: false },
+  { value: "gcd", label: "GCD (Euclidean)", ready: false },
+  { value: "reverse-string", label: "Reverse a String", ready: false },
+  { value: "palindrome-check", label: "Palindrome Check", ready: false },
+  { value: "binary-search", label: "Binary Search (Recursive)", ready: false },
   { value: "tower-of-hanoi", label: "Tower of Hanoi", ready: true },
-  { value: "factorial", label: "Factorial (coming soon)", ready: false },
-  { value: "fibonacci", label: "Fibonacci (coming soon)", ready: false },
+  { value: "permutations", label: "Permutations of a String", ready: false },
+  { value: "subsets", label: "Subsets (Power Set)", ready: false },
+  { value: "n-queens", label: "N-Queens", ready: false },
 ];
 
 // ---- LIGHTWEIGHT SYNTAX HIGHLIGHTER (same as Sorts.jsx) ----
@@ -101,6 +137,66 @@ const cloneRods = (rods) => ({
   Destination: [...rods.Destination],
 });
 
+// Format huge BigInt values into a readable node label (full value on hover)
+const formatBig = (v) => {
+  const s = v.toString();
+  if (s.length <= 8) return s;
+  return `${s.slice(0, 4)}...×10^${s.length - 1}`;
+};
+
+// ---------------------------------- RECURSION STEPS/PROCESSING CODES START HERE ----------------------------------- 
+const factorialSteps = (n) => {
+  n = Math.max(1, Math.min(n, 200)); // safety ceiling, not a UX ceiling — see below
+  const steps = [];
+
+  // Build node list: callNode(k) for k=n..1, multiplyNode(k) for k=n..2
+  const nodes = {};
+  for (let k = n; k >= 1; k--) {
+    nodes[`call-${k}`] = {
+      id: `call-${k}`, depth: n - k, col: 0, label: `f(${k})`,
+      status: "pending", value: null,
+    };
+    if (k < n) {
+      nodes[`mul-${k + 1}`] = {
+        id: `mul-${k + 1}`, depth: n - k, col: 1, label: `${k + 1} × f(${k})`,
+        status: "pending", value: null,
+      };
+    }
+  }
+
+  const snapshot = (note) => steps.push({
+    nodes: Object.fromEntries(Object.entries(nodes).map(([id, nd]) => [id, { ...nd }])),
+    note,
+  });
+
+  snapshot("Initial call — f(n) starts descending.");
+
+  // Descend
+  for (let k = n; k >= 1; k--) {
+    nodes[`call-${k}`].status = "active";
+    snapshot(k === n ? `Calling f(${k}).` : `f(${k + 1}) calls f(${k}) before it can multiply.`);
+  }
+
+  // Base case
+  nodes[`call-1`].status = "resolved";
+  nodes[`call-1`].value = 1n;
+  snapshot("Base case reached: f(1) = 1.");
+
+  // Bubble back up
+  for (let k = 2; k <= n; k++) {
+    const below = nodes[`call-${k - 1}`].value;
+    const result = BigInt(k) * below;
+    nodes[`mul-${k}`].status = "resolved";
+    nodes[`mul-${k}`].value = result;
+    nodes[`call-${k}`].status = "resolved";
+    nodes[`call-${k}`].value = result;
+    snapshot(`f(${k}) = ${k} × f(${k - 1}) = ${k} × ${below.toString().length > 8 ? formatBig(below) : below} = ${result.toString().length > 8 ? formatBig(result) : result}.`);
+  }
+
+  snapshot(`Finished! f(${n}) = ${formatBig(nodes[`call-${n}`].value)}`);
+  return steps;
+};
+
 const towerOfHanoiSteps = (n) => {
   const rods = buildInitialRods(n);
   const steps = [{ rods: cloneRods(rods), move: null, note: "Initial setup — all disks on Source." }];
@@ -126,6 +222,71 @@ const towerOfHanoiSteps = (n) => {
 // ---- VISUALIZER COMPONENTS (one per problem — renders whatever that problem's step shape needs) ----
 const DISK_COLORS = ["#2563EB", "#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#DB2777"];
 const ROD_NAMES = ["Source", "Helper", "Destination"];
+
+const FactorialVisualizer = ({ step, n }) => {
+  const containerRef = useRef(null);
+  const [containerH, setContainerH] = useState(400);
+  const [manualZoom, setManualZoom] = useState(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) setContainerH(entry.contentRect.height);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  const ROW_H = 90, NODE_W = 110, NODE_H = 56, COL_GAP = 40;
+  const rows = n; // depth 0..n-1
+  const totalLogicalHeight = rows * ROW_H + NODE_H;
+  const autoFitScale = Math.min(1, containerH / totalLogicalHeight);
+  const scale = manualZoom !== null ? manualZoom : autoFitScale;
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const current = manualZoom !== null ? manualZoom : autoFitScale;
+    const next = Math.min(3, Math.max(0.1, current - e.deltaY * 0.001));
+    setManualZoom(next);
+  };
+
+  const nodeList = Object.values(step.nodes || {});
+
+  return (
+    <div className="fact-viz-outer" ref={containerRef} onWheel={handleWheel}>
+      <div className="fact-zoom-controls">
+        <button onClick={() => setManualZoom(Math.min(3, scale + 0.15))}>+</button>
+        <button onClick={() => setManualZoom(Math.max(0.1, scale - 0.15))}>−</button>
+        <button onClick={() => setManualZoom(null)}>Reset</button>
+        <span className="fact-node-count">{nodeList.length} nodes</span>
+      </div>
+
+      <div
+        className="fact-tree-inner"
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: "top center",
+          height: totalLogicalHeight,
+        }}
+      >
+        {nodeList.map((nd) => (
+          <div
+            key={nd.id}
+            className={`fact-node fact-node--${nd.status}`}
+            style={{
+              top: nd.depth * ROW_H,
+              left: `calc(50% + ${(nd.col === 0 ? -1 : 1) * (NODE_W / 2 + COL_GAP / 2)}px)`,
+              width: NODE_W, height: NODE_H,
+            }}
+            title={nd.value !== null ? nd.value.toString() : ""}
+          >
+            {nd.status === "resolved" && nd.value !== null ? formatBig(nd.value) : nd.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const TowerOfHanoiVisualizer = ({ step, totalDisks }) => {
   const getDiskWidth = (diskNum) => {
@@ -160,6 +321,12 @@ const TowerOfHanoiVisualizer = ({ step, totalDisks }) => {
 
 // Configuration — mirrors ALGO_CONFIG in Sorts.jsx, plus a "param" (the one input control per problem) and "Visualizer"
 const RECURSION_CONFIG = {
+  "factorial": {
+    steps: factorialSteps,
+    code: FactorialCodes,
+    Visualizer: FactorialVisualizer,
+    param: { key: "n", label: "n", min: 1, max: 100, default: 5 },
+  },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
     code: TowerOfHanoiCodes,
@@ -170,14 +337,69 @@ const RECURSION_CONFIG = {
 
 // Time and Space Complexity
 const RECURSION_COMPLEXITY = {
+  "factorial": { time: "O(n)", space: "O(n)" },
+  "fibonacci": { time: "O(2ⁿ)", space: "O(n)" },
+  "sum-of-array": { time: "O(n)", space: "O(n)" },
+  "power": { time: "O(log n)", space: "O(log n)" },
+  "gcd": { time: "O(log(min(a, b)))", space: "O(log(min(a, b)))" },
+  "reverse-string": { time: "O(n)", space: "O(n)" },
+  "palindrome-check": { time: "O(n)", space: "O(n)" },
+  "binary-search": { time: "O(log n)", space: "O(log n)" },
   "tower-of-hanoi": { time: "O(2ⁿ)", space: "O(n)" },
+  "permutations": { time: "O(n!)", space: "O(n)" },
+  "subsets": { time: "O(2ⁿ)", space: "O(n)" },
+  "n-queens": { time: "O(n!)", space: "O(n)" },
 };
 
 // Definitions + Examples
 const RECURSION_DEFINITIONS = {
+  "factorial": {
+    definition: "Computes the product of all positive integers up to n, by defining n! in terms of a smaller version of itself: n! = n × (n-1)!.",
+    example: "Like a line of people passing a multiplying baton backward — each person multiplies their number by whatever the person behind them eventually hands back.",
+  },
+  "fibonacci": {
+    definition: "Computes the nth number in the sequence where each number is the sum of the two before it, by recursively calling itself for the two smaller subproblems.",
+    example: "Like asking two friends to each recall the previous two answers, then adding what they tell you — except your friends ask their own friends the same thing, all the way down.",
+  },
+  "sum-of-array": {
+    definition: "Adds up all elements in an array by recursively summing everything except the first element, then adding the first element to that result.",
+    example: "Like passing a receipt down a line of people — each person adds their item's price to the running total handed to them, until it reaches the front.",
+  },
+  "power": {
+    definition: "Computes baseⁿ efficiently by recursively squaring the result for even exponents and reducing by one for odd exponents, cutting the problem in half each time instead of multiplying one-by-one.",
+    example: "Like folding a piece of paper in half repeatedly instead of cutting it into single sheets one at a time — you reach the same result exponentially faster.",
+  },
+  "gcd": {
+    definition: "Finds the greatest common divisor of two numbers by repeatedly replacing the larger number with the remainder of dividing it by the smaller, until one number becomes zero.",
+    example: "Like repeatedly trimming the longer of two ropes down by the length of the shorter one, over and over, until both ropes are equal — that length is the answer.",
+  },
+  "reverse-string": {
+    definition: "Reverses a string by recursively reversing everything after the first character, then placing the first character at the very end.",
+    example: "Like unstacking a pile of plates one at a time and restacking them in a new pile — the last plate you pick up ends up on top, flipping the entire order.",
+  },
+  "palindrome-check": {
+    definition: "Checks whether a string reads the same forwards and backwards by recursively comparing the first and last characters, then checking the smaller string between them.",
+    example: "Like two people starting at opposite ends of a word and walking toward each other, checking letters match at each step, until they meet in the middle.",
+  },
+  "binary-search": {
+    definition: "Searches a sorted array by recursively checking the middle element and searching only the left or right half depending on the result, discarding half the remaining data each call.",
+    example: "Like looking up a word in a dictionary — you don't scan every page, you jump to the middle, decide which half your word is in, and repeat.",
+  },
   "tower-of-hanoi": {
     definition: "A classic recursive puzzle: move a stack of disks from a source rod to a destination rod, using a helper rod, moving one disk at a time and never placing a larger disk on a smaller one.",
     example: "Like moving a stack of nested bowls from one table to another, one bowl at a time, using a spare table as temporary storage — always keeping bigger bowls beneath smaller ones.",
+  },
+  "permutations": {
+    definition: "Generates every possible ordering of a string's characters by recursively fixing one character at a time and permuting the remaining characters in every position.",
+    example: "Like trying on every possible arrangement of a small set of fridge magnets, one letter at a time, until you've spelled out every possible combination.",
+  },
+  "subsets": {
+    definition: "Generates every possible subset (the power set) of a set by recursively deciding, for each element, whether to include it or leave it out.",
+    example: "Like standing at a buffet with several dishes and recursively asking 'include this dish or skip it?' for every item, listing every possible plate combination.",
+  },
+  "n-queens": {
+    definition: "Places n chess queens on an n×n board so none attack each other, by recursively placing one queen per row and backtracking whenever a placement leads to a conflict.",
+    example: "Like seating guests at a round table one at a time, checking for conflicts after each seat is filled, and undoing the last seating whenever a clash is found — trying the next option instead.",
   },
 };
 
@@ -313,7 +535,7 @@ const Recursion = () => {
               )}
             </div>
 
-            <Visualizer step={step} totalDisks={paramValue} />
+            <Visualizer step={step} totalDisks={paramValue} n={paramValue}/>
           </div>
 
           <button

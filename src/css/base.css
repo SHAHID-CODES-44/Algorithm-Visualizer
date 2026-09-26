@@ -977,3 +977,77 @@ html, body, #root {
   .sort-root .array-box { width: 42px; height: 42px; font-size: 13px; }
 }
 /* Sorts Styling Ends Here */
+
+/* Recursions Steps start Here */
+
+.fact-viz-outer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.fact-zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.fact-zoom-controls button {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fact-node-count {
+  font-size: 12px;
+  color: #64748b;
+  margin-left: 6px;
+}
+
+.fact-tree-inner {
+  position: relative;
+  width: 100%;
+}
+
+.fact-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 8px;
+  transition: background 0.3s ease, transform 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.fact-node--pending {
+  background: #e2e8f0;
+  color: #94a3b8;
+}
+
+.fact-node--active {
+  background: #7c3aed;
+  color: white;
+  border-color: #5b21b6;
+  transform: scale(1.08);
+}
+
+.fact-node--resolved {
+  background: #059669;
+  color: white;
+}
