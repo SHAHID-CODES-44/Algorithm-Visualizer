@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Home.css"; // Ensure to import the stylesheet
+import "../css/Home.css"; // Ensure to import the stylesheet
 
 const Home = () => {
     const visualizerList = [
         {
             title: "Recursion",
             description: "Visualize recursive patterns and problem-solving using the Tower of Hanoi.",
-            path: "/Recursion",
+            path: "/Recursions",
             tag: "Tower of Hanoi",
         },
         {
