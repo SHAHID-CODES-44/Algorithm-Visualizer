@@ -1,5 +1,5 @@
 # DSA Visualizer
-# LIVE LINK : https://algorithm-visualizer-iota-three.vercel.app/
+# LIVE LINK : https://algorithm-visualizer-iota-three.vercel.app/ (Hosting it on a Proper Domain Soon)
 A visual tool to understand DSA algorithms step by step.
 
 ## Current Visualizations
