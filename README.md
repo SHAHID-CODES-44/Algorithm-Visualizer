@@ -17,7 +17,8 @@ A visual tool to understand DSA algorithms step by step.
 - CSS
 
 ## Use Case
-- Use it while solving Questions for Recursion and Sorting
+- Use it while solving Questions for Recursion and Sorting.
+- While you want to Visualize the problems
 
 ## Excalidraw Wireframe Links
 - Recursion/Factorial = https://excalidraw.com/#json=1TIk2QCxY2ZGBaX_lNkYv,UtbkP7Bn0stJQUhQehYxpw
