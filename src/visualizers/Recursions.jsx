@@ -146,54 +146,27 @@ const formatBig = (v) => {
 
 // ---------------------------------- RECURSION STEPS/PROCESSING CODES START HERE ----------------------------------- 
 const factorialSteps = (n) => {
-  n = Math.max(1, Math.min(n, 200)); // safety ceiling, not a UX ceiling — see below
+  n = Math.min(20, Math.max(1, n)); // strict cap of 5
+
+  const factorials = [1]; // factorials[k] = k!
+  for (let k = 1; k <= n; k++) factorials[k] = k * factorials[k - 1];
+
+  const exprStr = (k) => (k === 1 ? "1 = 1" : `${k} * ${k - 1}! = ${factorials[k]}`);
+  const expandedStr = (k) => {
+    const parts = [];
+    for (let i = k; i >= 1; i--) parts.push(i);
+    return `${k} = ${parts.join(" * ")}`;
+  };
+
+  const rowsAll = [];
+  for (let k = 1; k <= n; k++) {
+    rowsAll.push({ sr: k, expr: exprStr(k), expanded: expandedStr(k) });
+  }
+
   const steps = [];
-
-  // Build node list: callNode(k) for k=n..1, multiplyNode(k) for k=n..2
-  const nodes = {};
-  for (let k = n; k >= 1; k--) {
-    nodes[`call-${k}`] = {
-      id: `call-${k}`, depth: n - k, col: 0, label: `f(${k})`,
-      status: "pending", value: null,
-    };
-    if (k < n) {
-      nodes[`mul-${k + 1}`] = {
-        id: `mul-${k + 1}`, depth: n - k, col: 1, label: `${k + 1} × f(${k})`,
-        status: "pending", value: null,
-      };
-    }
+  for (let k = 1; k <= n; k++) {
+    steps.push({ rows: rowsAll.slice(0, k), note: `Computed f(${k}) = ${factorials[k]}.` });
   }
-
-  const snapshot = (note) => steps.push({
-    nodes: Object.fromEntries(Object.entries(nodes).map(([id, nd]) => [id, { ...nd }])),
-    note,
-  });
-
-  snapshot("Initial call — f(n) starts descending.");
-
-  // Descend
-  for (let k = n; k >= 1; k--) {
-    nodes[`call-${k}`].status = "active";
-    snapshot(k === n ? `Calling f(${k}).` : `f(${k + 1}) calls f(${k}) before it can multiply.`);
-  }
-
-  // Base case
-  nodes[`call-1`].status = "resolved";
-  nodes[`call-1`].value = 1n;
-  snapshot("Base case reached: f(1) = 1.");
-
-  // Bubble back up
-  for (let k = 2; k <= n; k++) {
-    const below = nodes[`call-${k - 1}`].value;
-    const result = BigInt(k) * below;
-    nodes[`mul-${k}`].status = "resolved";
-    nodes[`mul-${k}`].value = result;
-    nodes[`call-${k}`].status = "resolved";
-    nodes[`call-${k}`].value = result;
-    snapshot(`f(${k}) = ${k} × f(${k - 1}) = ${k} × ${below.toString().length > 8 ? formatBig(below) : below} = ${result.toString().length > 8 ? formatBig(result) : result}.`);
-  }
-
-  snapshot(`Finished! f(${n}) = ${formatBig(nodes[`call-${n}`].value)}`);
   return steps;
 };
 
@@ -223,64 +196,31 @@ const towerOfHanoiSteps = (n) => {
 const DISK_COLORS = ["#2563EB", "#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#DB2777"];
 const ROD_NAMES = ["Source", "Helper", "Destination"];
 
-const FactorialVisualizer = ({ step, n }) => {
-  const containerRef = useRef(null);
-  const [containerH, setContainerH] = useState(400);
-  const [manualZoom, setManualZoom] = useState(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) setContainerH(entry.contentRect.height);
-    });
-    ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, []);
-
-  const ROW_H = 90, NODE_W = 110, NODE_H = 56, COL_GAP = 40;
-  const rows = n; // depth 0..n-1
-  const totalLogicalHeight = rows * ROW_H + NODE_H;
-  const autoFitScale = Math.min(1, containerH / totalLogicalHeight);
-  const scale = manualZoom !== null ? manualZoom : autoFitScale;
-
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const current = manualZoom !== null ? manualZoom : autoFitScale;
-    const next = Math.min(3, Math.max(0.1, current - e.deltaY * 0.001));
-    setManualZoom(next);
-  };
-
-  const nodeList = Object.values(step.nodes || {});
-
+const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart }) => {
+  const rows = step.rows || [];
   return (
-    <div className="fact-viz-outer" ref={containerRef} onWheel={handleWheel}>
-      <div className="fact-zoom-controls">
-        <button onClick={() => setManualZoom(Math.min(3, scale + 0.15))}>+</button>
-        <button onClick={() => setManualZoom(Math.max(0.1, scale - 0.15))}>−</button>
-        <button onClick={() => setManualZoom(null)}>Reset</button>
-        <span className="fact-node-count">{nodeList.length} nodes</span>
+    <div className="fact-root">
+      <div className="fact-infobar">
+        <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || n}</span>
+        <span className="fact-info-sep">|</span> 
+        <span className="fact-info-item">n = {n}</span>
+        <span className="fact-info-sep">|</span>
+        <span className="fact-info-item">Formula = n! = n × (n-1)!</span>
+        <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing"}>
+          {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
+        </button>
       </div>
 
-      <div
-        className="fact-tree-inner"
-        style={{
-          transform: `scale(${scale})`,
-          transformOrigin: "top center",
-          height: totalLogicalHeight,
-        }}
-      >
-        {nodeList.map((nd) => (
-          <div
-            key={nd.id}
-            className={`fact-node fact-node--${nd.status}`}
-            style={{
-              top: nd.depth * ROW_H,
-              left: `calc(50% + ${(nd.col === 0 ? -1 : 1) * (NODE_W / 2 + COL_GAP / 2)}px)`,
-              width: NODE_W, height: NODE_H,
-            }}
-            title={nd.value !== null ? nd.value.toString() : ""}
-          >
-            {nd.status === "resolved" && nd.value !== null ? formatBig(nd.value) : nd.label}
+      <div className="fact-window">
+        {rows.length === 0 && <p className="fact-empty">Press Start to compute step by step.</p>}
+        {rows.map((r) => (
+          <div key={r.sr} className="fact-row">
+            <span className="fact-sr">{r.sr}</span>
+            <span className="fact-label">f({r.sr})</span>
+            <span className="fact-eq">=</span>
+            <span className="fact-expr">{r.expr}</span>
+            <span className="fact-eq">=</span>
+            <span className="fact-expanded">{r.expanded}</span>
           </div>
         ))}
       </div>
@@ -325,7 +265,8 @@ const RECURSION_CONFIG = {
     steps: factorialSteps,
     code: FactorialCodes,
     Visualizer: FactorialVisualizer,
-    param: { key: "n", label: "n", min: 1, max: 100, default: 5 },
+    param: { key: "n", label: "n", min: 1, max: 20, default: 5 },
+    ownControls: true, // tells the page: this problem draws its own info bar + Start button
   },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
@@ -522,29 +463,38 @@ const Recursion = () => {
 
       <div className="sort-layout">
         {/* LEFT: visualization */}
+        {/* LEFT: visualization */}
         <div className="sort-viz-panel">
-          <div className="toh-viz-wrap">
-            <div className="step-bar">
-              {allSteps.length > 0 ? (
-                <>
-                  <span className="step-counter">{currentStep + 1} <span className="step-of">/ {allSteps.length}</span></span>
-                  <span className="step-desc">{step.note}</span>
-                </>
-              ) : (
-                <span className="step-hint">Set {activeConfig.param.label.toLowerCase()} and press Start</span>
-              )}
+          {activeConfig.ownControls ? (
+            <Visualizer
+              step={step}
+              n={paramValue}
+              allStepsLength={allSteps.length}
+              currentStep={currentStep}
+              phase={phase}
+              onStart={handleStart}
+            />
+          ) : (
+            <div className="toh-viz-wrap">
+              <div className="step-bar">
+                {allSteps.length > 0 ? (
+                  <>
+                    <span className="step-counter">{currentStep + 1} <span className="step-of">/ {allSteps.length}</span></span>
+                    <span className="step-desc">{step.note}</span>
+                  </>
+                ) : (
+                  <span className="step-hint">Set {activeConfig.param.label.toLowerCase()} and press Start</span>
+                )}
+              </div>
+              <Visualizer step={step} totalDisks={paramValue} n={paramValue} />
             </div>
+          )}
 
-            <Visualizer step={step} totalDisks={paramValue} n={paramValue}/>
-          </div>
-
-          <button
-            className="sort-start-btn"
-            onClick={handleStart}
-            disabled={phase === "playing"}
-          >
-            {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
-          </button>
+          {!activeConfig.ownControls && (
+            <button className="sort-start-btn" onClick={handleStart} disabled={phase === "playing"}>
+              {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
+            </button>
+          )}
         </div>
 
         {/* RIGHT: process / explain / code panel — identical to Sorts.jsx */}

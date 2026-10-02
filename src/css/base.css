@@ -980,74 +980,109 @@ html, body, #root {
 
 /* Recursions Steps start Here */
 
-.fact-viz-outer {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 400px;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #fafbfc;
-}
-
-.fact-zoom-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
+.fact-root {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+
+.fact-infobar {
+  display: flex;
   align-items: center;
-}
-
-.fact-zoom-controls button {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #f8fafc;
   border: 1.5px solid #e2e8f0;
-  background: white;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.fact-info-sep {
+  color: #cbd5e1;
+}
+
+.fact-start-btn {
+  margin-left: auto;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
   font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+.fact-start-btn:hover { background: #1d4ed8; }
+.fact-start-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+.fact-window {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
 }
 
-.fact-node-count {
-  font-size: 12px;
-  color: #64748b;
-  margin-left: 6px;
+.fact-empty {
+  color: #94a3b8;
+  font-size: 13px;
 }
 
-.fact-tree-inner {
-  position: relative;
-  width: 100%;
+.fact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  animation: fact-fade-in 0.3s ease;
 }
 
-.fact-node {
-  position: absolute;
+.fact-sr {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  font-weight: 800;
   font-size: 13px;
+  color: #475569;
+}
+
+.fact-label {
+  min-width: 60px;
   font-weight: 700;
-  text-align: center;
-  padding: 4px 8px;
-  transition: background 0.3s ease, transform 0.3s ease;
-  border: 2px solid transparent;
+  color: #1e293b;
+  font-family: 'Fira Code', monospace;
 }
 
-.fact-node--pending {
-  background: #e2e8f0;
+.fact-eq {
   color: #94a3b8;
+  font-weight: 700;
 }
 
-.fact-node--active {
-  background: #7c3aed;
-  color: white;
-  border-color: #5b21b6;
-  transform: scale(1.08);
+.fact-expr, .fact-expanded {
+  padding: 8px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-family: 'Fira Code', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1e293b;
 }
 
-.fact-node--resolved {
-  background: #059669;
-  color: white;
+@keyframes fact-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
