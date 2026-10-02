@@ -1001,8 +1001,14 @@ html, body, #root {
   color: #334155;
 }
 
+.fact-info-item {
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .fact-info-sep {
-  color: #cbd5e1;
+    font-size: 20px;
+    color: black;
 }
 
 .fact-start-btn {
@@ -1040,6 +1046,7 @@ html, body, #root {
 .fact-row {
   display: flex;
   align-items: center;
+  padding-bottom: 13px;
   gap: 12px;
   flex-wrap: wrap;
   animation: fact-fade-in 0.3s ease;
@@ -1057,6 +1064,7 @@ html, body, #root {
   font-weight: 800;
   font-size: 13px;
   color: #475569;
+  margin-right: 14px;
 }
 
 .fact-label {

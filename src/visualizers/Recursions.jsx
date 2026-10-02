@@ -201,11 +201,15 @@ const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onSt
   return (
     <div className="fact-root">
       <div className="fact-infobar">
+        <span className="fact-info-item">Max(n) &lt;= 20</span>
+        <span className="fact-info-sep">•</span> 
         <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || n}</span>
-        <span className="fact-info-sep">|</span> 
+        <span className="fact-info-sep">•</span> 
         <span className="fact-info-item">n = {n}</span>
-        <span className="fact-info-sep">|</span>
+        <span className="fact-info-sep">•</span>
         <span className="fact-info-item">Formula = n! = n × (n-1)!</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">Decrease the Page Zoom when Steps are not fitting in a Single Row</span>
         <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing"}>
           {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
         </button>
@@ -346,8 +350,8 @@ const RECURSION_DEFINITIONS = {
 
 // Main Function
 const Recursion = () => {
-  const [algo, setAlgo] = useState("tower-of-hanoi");
-  const [paramValue, setParamValue] = useState(RECURSION_CONFIG["tower-of-hanoi"].param.default);
+  const [algo, setAlgo] = useState("factorial");
+  const [paramValue, setParamValue] = useState(RECURSION_CONFIG["factorial"].param.default);
   const [allSteps, setAllSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [phase, setPhase] = useState("idle");
