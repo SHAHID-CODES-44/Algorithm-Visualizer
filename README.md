@@ -3,7 +3,7 @@
 A visual tool to understand DSA algorithms step by step.
 
 ## Current Visualizations
-- Recursion Questions
+- Recursion Questions (Just now Factorial Added)
 - Sorting Algorithms
 
 ## Features
@@ -22,3 +22,4 @@ A visual tool to understand DSA algorithms step by step.
 
 ## Excalidraw Wireframe Links
 - Recursion/Factorial = https://excalidraw.com/#json=1TIk2QCxY2ZGBaX_lNkYv,UtbkP7Bn0stJQUhQehYxpw
+
