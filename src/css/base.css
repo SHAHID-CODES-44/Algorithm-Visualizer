@@ -990,13 +990,13 @@ html, body, #root {
 .fact-infobar {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
   flex-wrap: wrap;
   padding: 10px 14px;
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #334155;
 }
@@ -1012,14 +1012,16 @@ html, body, #root {
 }
 
 .fact-start-btn {
+  width: 140px;
   margin-left: auto;
   padding: 8px 20px;
   border: none;
   border-radius: 8px;
   background: #2563eb;
   color: white;
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 15px;
+  font-style: italic;
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -1088,6 +1090,20 @@ html, body, #root {
   font-weight: 700;
   font-size: 13px;
   color: #1e293b;
+}
+
+.explain-facts-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.explain-facts-list li {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.6;
 }
 
 @keyframes fact-fade-in {

@@ -3,9 +3,60 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../css/base.css";
 import OnRefresh from "../pages/OnRefresh";
-import { param } from "framer-motion/client";
+import { form, param } from "framer-motion/client";
 
 // --------------------------------- CODE SNIPPETS FOR ALL RECURSION PROBLEMS ----------------------------------------
+
+const FactorialCodes = {
+  cpp: `long long factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}`,
+  java: `long factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}`,
+  python: `def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)`,
+  go: `func factorial(n int) *big.Int {
+    if n <= 1 {
+        return big.NewInt(1)
+    }
+    return new(big.Int).Mul(big.NewInt(int64(n)), factorial(n-1))
+}`,
+  ruby: `def factorial(n)
+  return 1 if n <= 1
+  n * factorial(n - 1)
+end`,
+};
+
+const FibonacciCodes = {
+  cpp: `int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}`,
+  java: `int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}`,
+  python: `def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)`,
+  go: `func fibonacci(n int) int {
+    if n <= 1 {
+        return n
+    }
+    return fibonacci(n-1) + fibonacci(n-2)
+}`,
+  ruby: `def fibonacci(n)
+  return n if n <= 1
+  fibonacci(n - 1) + fibonacci(n - 2)
+end`,
+};
+
 const TowerOfHanoiCodes = {
   cpp: `void hanoi(int n, char from, char helper, char to) {
     if (n == 1) {
@@ -52,37 +103,12 @@ const TowerOfHanoiCodes = {
 end`,
 };
 
-const FactorialCodes = {
-  cpp: `long long factorial(int n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}`,
-  java: `long factorial(int n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}`,
-  python: `def factorial(n):
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)`,
-  go: `func factorial(n int) *big.Int {
-    if n <= 1 {
-        return big.NewInt(1)
-    }
-    return new(big.Int).Mul(big.NewInt(int64(n)), factorial(n-1))
-}`,
-  ruby: `def factorial(n)
-  return 1 if n <= 1
-  n * factorial(n - 1)
-end`,
-};
-
 // ---------------------------------------------- CODE STORAGE ENDS FOR ALL RECURSION PROBLEMS ----------------------------------------
 
 // ---- PROBLEM LIST (dropdown works, only Tower of Hanoi is implemented) ----
 const RECURSION_OPTIONS = [
   { value: "factorial", label: "Factorial", ready: true },
-  { value: "fibonacci", label: "Fibonacci", ready: false },
+  { value: "fibonacci", label: "Fibonacci", ready: true },
   { value: "sum-of-array", label: "Sum of Array", ready: false },
   { value: "power", label: "Power (Exponentiation)", ready: false },
   { value: "gcd", label: "GCD (Euclidean)", ready: false },
@@ -170,6 +196,30 @@ const factorialSteps = (n) => {
   return steps;
 };
 
+const fibonacciSteps = (n) => {
+  n = Math.min(20, Math.max(0, n));
+  const fib = [0, 1];
+  for (let k = 2; k <= n; k++) fib[k] = fib[k - 1] + fib[k - 2];
+
+  const exprStr = (k) => {
+    if (k === 0) return "0 (base case)";
+    if (k === 1) return "1 (base case)";
+    return `f(${k - 1}) + f(${k - 2}) = ${fib[k]}`;
+  };
+  const expandedStr = (k) => `f(${k}) = ${fib.slice(0, k + 1).join(", ")}`;
+
+  const rowsAll = [];
+  for (let k = 0; k <= n; k++) {
+    rowsAll.push({ sr: k, expr: exprStr(k), expanded: expandedStr(k) });
+  }
+
+  const steps = [];
+  for (let k = 0; k <= n; k++) {
+    steps.push({ rows: rowsAll.slice(0, k + 1), note: `Computed f(${k}) = ${fib[k]}.` });
+  }
+  return steps;
+};
+
 const towerOfHanoiSteps = (n) => {
   const rods = buildInitialRods(n);
   const steps = [{ rods: cloneRods(rods), move: null, note: "Initial setup — all disks on Source." }];
@@ -196,18 +246,18 @@ const towerOfHanoiSteps = (n) => {
 const DISK_COLORS = ["#2563EB", "#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#DB2777"];
 const ROD_NAMES = ["Source", "Helper", "Destination"];
 
-const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart }) => {
+const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, formula}) => {
   const rows = step.rows || [];
   return (
     <div className="fact-root">
       <div className="fact-infobar">
         <span className="fact-info-item">Max(n) &lt;= 20</span>
-        <span className="fact-info-sep">•</span> 
+        <span className="fact-info-sep">•</span>
         <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || n}</span>
-        <span className="fact-info-sep">•</span> 
+        <span className="fact-info-sep">•</span>
         <span className="fact-info-item">n = {n}</span>
         <span className="fact-info-sep">•</span>
-        <span className="fact-info-item">Formula = n! = n × (n-1)!</span>
+        <span className="fact-info-item">Formula = {formula}</span>
         <span className="fact-info-sep">•</span>
         <span className="fact-info-item">Decrease the Page Zoom when Steps are not fitting in a Single Row</span>
         <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing"}>
@@ -271,12 +321,24 @@ const RECURSION_CONFIG = {
     Visualizer: FactorialVisualizer,
     param: { key: "n", label: "n", min: 1, max: 20, default: 5 },
     ownControls: true, // tells the page: this problem draws its own info bar + Start button
+      formula: "n! = n × (n-1)!",
+
+  },
+  "fibonacci": {
+    steps: fibonacciSteps,
+    code: FibonacciCodes,
+    Visualizer: FactorialVisualizer, // same ledger UI, reused as-is
+    param: { key: "n", label: "n", min: 0, max: 20, default: 10 },
+    ownControls: true,
+      formula: "f(n) = f(n-1) + f(n-2)",
+
   },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
     code: TowerOfHanoiCodes,
     Visualizer: TowerOfHanoiVisualizer,
     param: { key: "disks", label: "Disks", min: 1, max: 7, default: 3 },
+    formula: "Will be Added Soon...",
   },
 };
 
@@ -303,8 +365,17 @@ const RECURSION_DEFINITIONS = {
     example: "Like a line of people passing a multiplying baton backward — each person multiplies their number by whatever the person behind them eventually hands back.",
   },
   "fibonacci": {
-    definition: "Computes the nth number in the sequence where each number is the sum of the two before it, by recursively calling itself for the two smaller subproblems.",
-    example: "Like asking two friends to each recall the previous two answers, then adding what they tell you — except your friends ask their own friends the same thing, all the way down.",
+    definition: "A sequence where each number is the sum of the two numbers before it, starting from 0 and 1: 0, 1, 1, 2, 3, 5, 8, 13...",
+    example: "Like a family tree of numbers — every new number is born from its two immediate parents, carrying forward the pattern endlessly.",
+    facts: [
+      "As n grows, the ratio between consecutive Fibonacci numbers converges to the Golden Ratio (φ ≈ 1.618) — a proportion artists and architects have prized for millennia.",
+      "The spiral pattern of a nautilus shell closely approximates a Fibonacci/golden spiral, growing outward in the same proportional curve.",
+      "Sunflower seed heads and pinecones arrange themselves in spirals whose counts are almost always consecutive Fibonacci numbers (e.g. 34 and 55 spirals).",
+      "The number of petals on many flowers — lilies (3), buttercups (5), delphiniums (8), daisies (34 or 55) — tends to match a Fibonacci number.",
+      "Human faces and bodies are often cited as having proportions close to the Golden Ratio, from the width-to-height ratio of the face to finger bone lengths.",
+      "Spiral galaxies, including the Milky Way, exhibit arm patterns that approximate the same logarithmic spiral shape found in Fibonacci growth.",
+      "The Parthenon in Athens and many Renaissance paintings were deliberately proportioned using the Golden Ratio derived from this sequence.",
+    ],
   },
   "sum-of-array": {
     definition: "Adds up all elements in an array by recursively summing everything except the first element, then adding the first element to that result.",
@@ -477,6 +548,7 @@ const Recursion = () => {
               currentStep={currentStep}
               phase={phase}
               onStart={handleStart}
+              formula={activeConfig.formula}
             />
           ) : (
             <div className="toh-viz-wrap">
@@ -536,6 +608,16 @@ const Recursion = () => {
                 <span className="explain-label">Example</span>
                 <p>{RECURSION_DEFINITIONS[algo]?.example}</p>
               </div>
+              {RECURSION_DEFINITIONS[algo]?.facts && (
+                <div className="explain-block">
+                  <span className="explain-label">Fascinating Facts</span>
+                  <ul className="explain-facts-list">
+                    {RECURSION_DEFINITIONS[algo].facts.map((fact, i) => (
+                      <li key={i}>{fact}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           ) : (
             <div className="code-panel">
