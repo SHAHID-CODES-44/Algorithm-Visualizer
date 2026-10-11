@@ -82,6 +82,75 @@ const SumOfArrayCodes = {
 end`,
 };
 
+const FastPowerCodes = {
+  cpp: `long long power(long long b, int e) {
+    if (e == 0) return 1;
+    if (e % 2 == 0) {
+        long long half = power(b, e / 2);
+        return half * half;
+    }
+    return b * power(b, e - 1);
+}`,
+  java: `long power(long b, int e) {
+    if (e == 0) return 1;
+    if (e % 2 == 0) {
+        long half = power(b, e / 2);
+        return half * half;
+    }
+    return b * power(b, e - 1);
+}`,
+  python: `def power(b, e):
+    if e == 0:
+        return 1
+    if e % 2 == 0:
+        half = power(b, e // 2)
+        return half * half
+    return b * power(b, e - 1)`,
+  go: `func power(b int64, e int) int64 {
+    if e == 0 {
+        return 1
+    }
+    if e%2 == 0 {
+        half := power(b, e/2)
+        return half * half
+    }
+    return b * power(b, e-1)
+}`,
+  ruby: `def power(b, e)
+  return 1 if e == 0
+  if e.even?
+    half = power(b, e / 2)
+    return half * half
+  end
+  b * power(b, e - 1)
+end`,
+};
+
+const SimplePowerCodes = {
+  cpp: `long long power(long long b, int e) {
+    if (e == 0) return 1;
+    return b * power(b, e - 1);
+}`,
+  java: `long power(long b, int e) {
+    if (e == 0) return 1;
+    return b * power(b, e - 1);
+}`,
+  python: `def power(b, e):
+    if e == 0:
+        return 1
+    return b * power(b, e - 1)`,
+  go: `func power(b int64, e int) int64 {
+    if e == 0 {
+        return 1
+    }
+    return b * power(b, e-1)
+}`,
+  ruby: `def power(b, e)
+  return 1 if e == 0
+  b * power(b, e - 1)
+end`,
+};
+
 const TowerOfHanoiCodes = {
   cpp: `void hanoi(int n, char from, char helper, char to) {
     if (n == 1) {
@@ -135,7 +204,8 @@ const RECURSION_OPTIONS = [
   { value: "factorial", label: "Factorial", ready: true },
   { value: "fibonacci", label: "Fibonacci", ready: true },
   { value: "sum-of-array", label: "Sum of Array", ready: true },
-  { value: "power", label: "Power (Exponentiation)", ready: false },
+  { value: "power", label: "Power (Fast)", ready: true },
+  { value: "power-simple", label: "Power (Simple)", ready: true },
   { value: "gcd", label: "GCD (Euclidean)", ready: false },
   { value: "reverse-string", label: "Reverse a String", ready: false },
   { value: "palindrome-check", label: "Palindrome Check", ready: false },
@@ -272,6 +342,78 @@ const sumOfArraySteps = (n) => {
   return steps;
 };
 
+const fastPowerSteps = (e) => {
+  e = Math.min(20, Math.max(0, e));
+  const base = 2;
+
+  // The exponents the recursion actually visits going down, e.g. 10 → 5 → 4 → 2 → 1 → 0
+  const chain = [];
+  let cur = e;
+  while (true) {
+    chain.push(cur);
+    if (cur === 0) break;
+    cur = cur % 2 === 0 ? cur / 2 : cur - 1;
+  }
+
+  const values = {};
+  const rowsAll = [];
+  const steps = [];
+
+  // Rows appear bottom-up (base case first), same as Factorial's ledger
+  [...chain].reverse().forEach((k, idx) => {
+    let expr, expanded, note;
+    if (k === 0) {
+      values[0] = 1;
+      expr = "1 (base case)";
+      expanded = "1";
+      note = `Call chain: ${chain.map((x) => `${base}^${x}`).join(" → ")}. Calls made: ${chain.length} (simple version: ${e + 1}). Base case: ${base}^0 = 1.`;
+    } else if (k % 2 === 0) {
+      const half = values[k / 2];
+      values[k] = half * half;
+      expr = `(${base}^${k / 2})²`;
+      expanded = `${half} × ${half} = ${values[k]}`;
+      note = `${base}^${k} is even: (${base}^${k / 2})² = ${half} × ${half} = ${values[k]}.`;
+    } else {
+      const prev = values[k - 1];
+      values[k] = base * prev;
+      expr = `${base} × ${base}^${k - 1}`;
+      expanded = `${base} × ${prev} = ${values[k]}`;
+      note = `${base}^${k} is odd: ${base} × ${base}^${k - 1} = ${base} × ${prev} = ${values[k]}.`;
+    }
+    rowsAll.push({ sr: idx, label: `${base}^${k}`, expr, expanded });
+    steps.push({ rows: [...rowsAll], note });
+  });
+
+  return steps;
+};
+
+const simplePowerSteps = (e) => {
+  e = Math.min(20, Math.max(0, e));
+  const base = 2;
+  const rowsAll = [];
+  const steps = [];
+  let prev = 1;
+
+  for (let k = 0; k <= e; k++) {
+    let expr, expanded, note, val;
+    if (k === 0) {
+      val = 1;
+      expr = "1 (base case)";
+      expanded = "1";
+      note = `Base case: ${base}^0 = 1. This version makes ${e + 1} calls, one per exponent.`;
+    } else {
+      val = base * prev;
+      expr = `${base} × ${base}^${k - 1}`;
+      expanded = `${base} × ${prev} = ${val}`;
+      note = `${base}^${k} = ${base} × ${base}^${k - 1} = ${base} × ${prev} = ${val}.`;
+    }
+    prev = val;
+    rowsAll.push({ sr: k, label: `${base}^${k}`, expr, expanded });
+    steps.push({ rows: [...rowsAll], note });
+  }
+  return steps;
+};
+
 const towerOfHanoiSteps = (n) => {
   const rods = buildInitialRods(n);
   const steps = [{ rods: cloneRods(rods), move: null, note: "Initial setup — all disks on Source." }];
@@ -311,26 +453,26 @@ const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onSt
         <span className="fact-info-sep">•</span>
         <span className="fact-info-item">Formula = {formula}</span>
         <span className="fact-info-sep">•</span>
-        <span className="fact-info-item-2">Decrease the Page Zoom when Steps are not fitting in a Single Row</span>
+        <span className="fact-info-item-2">Decrease the Page Zoom when Steps are not fitting</span>
         <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing"}>
           {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
         </button>
       </div>
-{step.array && (
-  <div className="fact-array-row">
-    {step.array.map((val, i) => (
-      <div key={i} className={`fact-array-box ${i === step.highlightIndex ? "fact-array-box--active" : ""} ${i < step.highlightIndex ? "fact-array-box--done" : ""}`}>
-        {val}
-      </div>
-    ))}
-  </div>
-)}
+      {step.array && (
+        <div className="fact-array-row">
+          {step.array.map((val, i) => (
+            <div key={i} className={`fact-array-box ${i === step.highlightIndex ? "fact-array-box--active" : ""} ${i < step.highlightIndex ? "fact-array-box--done" : ""}`}>
+              {val}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="fact-window">
         {rows.length === 0 && <p className="fact-empty">Press Start to compute step by step.</p>}
         {rows.map((r) => (
           <div key={r.sr} className="fact-row">
             <span className="fact-sr">{r.sr}</span>
-            <span className="fact-label">f({r.sr})</span>
+            <span className="fact-label">{r.label ?? `f(${r.sr})`}</span>
             <span className="fact-eq">=</span>
             <span className="fact-expr">{r.expr}</span>
             <span className="fact-eq">=</span>
@@ -401,6 +543,22 @@ const RECURSION_CONFIG = {
     ownControls: true,
     formula: "sum(n) = arr[n-1] + sum(n-1)",
   },
+  "power": {
+    steps: fastPowerSteps,
+    code: FastPowerCodes,
+    Visualizer: FactorialVisualizer,
+    param: { key: "n", label: "Exponent (n)", min: 0, max: 20, default: 10 },
+    ownControls: true,
+    formula: "2ⁿ = (2^(n/2))² if even, 2 × 2^(n-1) if odd",
+  },
+  "power-simple": {
+    steps: simplePowerSteps,
+    code: SimplePowerCodes,
+    Visualizer: FactorialVisualizer,
+    param: { key: "n", label: "Exponent (n)", min: 0, max: 20, default: 10 },
+    ownControls: true,
+    formula: "2ⁿ = 2 × 2^(n-1)",
+  },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
     code: TowerOfHanoiCodes,
@@ -416,6 +574,7 @@ const RECURSION_COMPLEXITY = {
   "fibonacci": { time: "O(2ⁿ)", space: "O(n)" },
   "sum-of-array": { time: "O(n)", space: "O(n)" },
   "power": { time: "O(log n)", space: "O(log n)" },
+  "power-simple": { time: "O(n)", space: "O(n)" },
   "gcd": { time: "O(log(min(a, b)))", space: "O(log(min(a, b)))" },
   "reverse-string": { time: "O(n)", space: "O(n)" },
   "palindrome-check": { time: "O(n)", space: "O(n)" },
@@ -450,8 +609,18 @@ const RECURSION_DEFINITIONS = {
     example: "Like passing a receipt down a line of people — each person adds their item's price to the running total handed to them, until it reaches the front.",
   },
   "power": {
-    definition: "Computes baseⁿ efficiently by recursively squaring the result for even exponents and reducing by one for odd exponents, cutting the problem in half each time instead of multiplying one-by-one.",
-    example: "Like folding a piece of paper in half repeatedly instead of cutting it into single sheets one at a time — you reach the same result exponentially faster.",
+    definition: "Computes base^n by halving the exponent each call: when n is even, it solves base^(n/2) once and squares the result; when n is odd, it peels off one multiplication first. This is also called exponentiation by squaring.",
+    example: "Like folding a sheet of paper in half over and over instead of tearing off one strip at a time. Each fold removes half the remaining work.",
+    facts: [
+      "2^20 takes 21 calls with the simple method but only 7 with fast power. The gap grows with n: 2^1000 needs under 20 calls instead of 1,000.",
+      "The catch: you must call power(b, n/2) once, store it, then square it. Writing power(b, n/2) * power(b, n/2) makes two calls per level and brings you back to O(n).",
+      "RSA encryption depends on this idea. It raises numbers hundreds of digits long to huge powers using repeated squaring (with modular arithmetic), which would be impossible one multiplication at a time.",
+      "The technique is very old. A version of it is traced back to Pingala's ancient Indian text on poetic meters, around 200 BCE.",
+    ],
+  },
+  "power-simple": {
+    definition: "Computes base^n the direct way: base^n = base × base^(n-1), until the exponent reaches 0, where the answer is 1.",
+    example: "Like climbing a staircase one step at a time. It's easy to follow, but a staircase with 1,000 steps takes 1,000 moves.",
   },
   "gcd": {
     definition: "Finds the greatest common divisor of two numbers by repeatedly replacing the larger number with the remainder of dividing it by the smaller, until one number becomes zero.",
