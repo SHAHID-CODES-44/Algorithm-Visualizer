@@ -57,6 +57,31 @@ const FibonacciCodes = {
 end`,
 };
 
+const SumOfArrayCodes = {
+  cpp: `int sumArray(int arr[], int n) {
+    if (n == 0) return 0;
+    return arr[n - 1] + sumArray(arr, n - 1);
+}`,
+  java: `int sumArray(int[] arr, int n) {
+    if (n == 0) return 0;
+    return arr[n - 1] + sumArray(arr, n - 1);
+}`,
+  python: `def sum_array(arr, n):
+    if n == 0:
+        return 0
+    return arr[n - 1] + sum_array(arr, n - 1)`,
+  go: `func sumArray(arr []int, n int) int {
+    if n == 0 {
+        return 0
+    }
+    return arr[n-1] + sumArray(arr, n-1)
+}`,
+  ruby: `def sum_array(arr, n)
+  return 0 if n == 0
+  arr[n - 1] + sum_array(arr, n - 1)
+end`,
+};
+
 const TowerOfHanoiCodes = {
   cpp: `void hanoi(int n, char from, char helper, char to) {
     if (n == 1) {
@@ -109,7 +134,7 @@ end`,
 const RECURSION_OPTIONS = [
   { value: "factorial", label: "Factorial", ready: true },
   { value: "fibonacci", label: "Fibonacci", ready: true },
-  { value: "sum-of-array", label: "Sum of Array", ready: false },
+  { value: "sum-of-array", label: "Sum of Array", ready: true },
   { value: "power", label: "Power (Exponentiation)", ready: false },
   { value: "gcd", label: "GCD (Euclidean)", ready: false },
   { value: "reverse-string", label: "Reverse a String", ready: false },
@@ -220,6 +245,33 @@ const fibonacciSteps = (n) => {
   return steps;
 };
 
+const sumOfArraySteps = (n) => {
+  n = Math.min(10, Math.max(2, n));
+  const arr = Array.from({ length: n }, () => Math.floor(Math.random() * 15) + 1);
+
+  const sums = [0];
+  for (let k = 1; k <= n; k++) sums[k] = sums[k - 1] + arr[k - 1];
+
+  const exprStr = (k) => (k === 0 ? "0 (base case)" : `arr[${k - 1}] + sum(${k - 1}) = ${sums[k]}`);
+  const expandedStr = (k) => (k === 0 ? "0" : arr.slice(0, k).join(" + "));
+
+  const rowsAll = [];
+  for (let k = 0; k <= n; k++) {
+    rowsAll.push({ sr: k, expr: exprStr(k), expanded: expandedStr(k) });
+  }
+
+  const steps = [];
+  for (let k = 0; k <= n; k++) {
+    steps.push({
+      rows: rowsAll.slice(0, k + 1),
+      array: arr,
+      highlightIndex: k === 0 ? -1 : k - 1,
+      note: k === 0 ? "Base case: sum(0) = 0." : `Added arr[${k - 1}] = ${arr[k - 1]} → sum(${k}) = ${sums[k]}.`,
+    });
+  }
+  return steps;
+};
+
 const towerOfHanoiSteps = (n) => {
   const rods = buildInitialRods(n);
   const steps = [{ rods: cloneRods(rods), move: null, note: "Initial setup — all disks on Source." }];
@@ -246,7 +298,7 @@ const towerOfHanoiSteps = (n) => {
 const DISK_COLORS = ["#2563EB", "#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#DB2777"];
 const ROD_NAMES = ["Source", "Helper", "Destination"];
 
-const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, formula}) => {
+const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, formula }) => {
   const rows = step.rows || [];
   return (
     <div className="fact-root">
@@ -259,12 +311,20 @@ const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onSt
         <span className="fact-info-sep">•</span>
         <span className="fact-info-item">Formula = {formula}</span>
         <span className="fact-info-sep">•</span>
-        <span className="fact-info-item">Decrease the Page Zoom when Steps are not fitting in a Single Row</span>
+        <span className="fact-info-item-2">Decrease the Page Zoom when Steps are not fitting in a Single Row</span>
         <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing"}>
           {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
         </button>
       </div>
-
+{step.array && (
+  <div className="fact-array-row">
+    {step.array.map((val, i) => (
+      <div key={i} className={`fact-array-box ${i === step.highlightIndex ? "fact-array-box--active" : ""} ${i < step.highlightIndex ? "fact-array-box--done" : ""}`}>
+        {val}
+      </div>
+    ))}
+  </div>
+)}
       <div className="fact-window">
         {rows.length === 0 && <p className="fact-empty">Press Start to compute step by step.</p>}
         {rows.map((r) => (
@@ -321,7 +381,7 @@ const RECURSION_CONFIG = {
     Visualizer: FactorialVisualizer,
     param: { key: "n", label: "n", min: 1, max: 20, default: 5 },
     ownControls: true, // tells the page: this problem draws its own info bar + Start button
-      formula: "n! = n × (n-1)!",
+    formula: "n! = n × (n-1)!",
 
   },
   "fibonacci": {
@@ -330,8 +390,16 @@ const RECURSION_CONFIG = {
     Visualizer: FactorialVisualizer, // same ledger UI, reused as-is
     param: { key: "n", label: "n", min: 0, max: 20, default: 10 },
     ownControls: true,
-      formula: "f(n) = f(n-1) + f(n-2)",
+    formula: "f(n) = f(n-1) + f(n-2)",
 
+  },
+  "sum-of-array": {
+    steps: sumOfArraySteps,
+    code: SumOfArrayCodes,
+    Visualizer: FactorialVisualizer,
+    param: { key: "n", label: "Array Size (n)", min: 2, max: 10, default: 6 },
+    ownControls: true,
+    formula: "sum(n) = arr[n-1] + sum(n-1)",
   },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
