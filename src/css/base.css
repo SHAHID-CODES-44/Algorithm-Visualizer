@@ -8,6 +8,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
 
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 .sr-only {
@@ -1149,4 +1150,45 @@ fact-info-item-2 {
   background: #d1fae5;
   border-color: #059669;
   color: #065f46;
+}
+
+/* For Recursion/Reverse a String */
+.sort-root .sort-n-input.sort-n-input--text {
+  width: 130px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.fact-arrays-wrap {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.fact-array-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fact-array-group .fact-array-row {
+  margin-bottom: 0;
+}
+
+.fact-array-label {
+  font-family: 'Fira Code', monospace;
+  font-weight: 800;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.fact-array-arrow {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: #94a3b8;
 }

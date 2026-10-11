@@ -1,10 +1,8 @@
 // src/visualizers/Recursion.jsx
-import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../css/base.css";
 import OnRefresh from "../pages/OnRefresh";
-import { form, param } from "framer-motion/client";
-
+import { useState, useRef, useEffect, Fragment } from "react";
 // --------------------------------- CODE SNIPPETS FOR ALL RECURSION PROBLEMS ----------------------------------------
 
 const FactorialCodes = {
@@ -151,6 +149,31 @@ const SimplePowerCodes = {
 end`,
 };
 
+const ReverseStringCodes = {
+  cpp: `string reverse(string s) {
+    if (s.empty()) return "";
+    return reverse(s.substr(1)) + s[0];
+}`,
+  java: `String reverse(String s) {
+    if (s.isEmpty()) return "";
+    return reverse(s.substring(1)) + s.charAt(0);
+}`,
+  python: `def reverse(s):
+    if s == "":
+        return ""
+    return reverse(s[1:]) + s[0]`,
+  go: `func reverse(s string) string {
+    if s == "" {
+        return ""
+    }
+    return reverse(s[1:]) + string(s[0])
+}`,
+  ruby: `def reverse(s)
+  return "" if s.empty?
+  reverse(s[1..]) + s[0]
+end`,
+};
+
 const TowerOfHanoiCodes = {
   cpp: `void hanoi(int n, char from, char helper, char to) {
     if (n == 1) {
@@ -206,7 +229,7 @@ const RECURSION_OPTIONS = [
   { value: "sum-of-array", label: "Sum of Array", ready: true },
   { value: "power", label: "Power (Fast)", ready: true },
   { value: "power-simple", label: "Power (Simple)", ready: true },
-  { value: "reverse-string", label: "Reverse a String", ready: false },
+  { value: "reverse-string", label: "Reverse a String", ready: true },
   { value: "binary-search", label: "Binary Search (Recursive)", ready: false },
   { value: "tower-of-hanoi", label: "Tower of Hanoi", ready: true },
   { value: "n-queens", label: "N-Queens", ready: false },
@@ -410,6 +433,53 @@ const simplePowerSteps = (e) => {
   return steps;
 };
 
+const reverseStringSteps = (input) => {
+  const word = String(input).toUpperCase().replace(/[^A-Z]/g, "").slice(0, 8);
+  const n = word.length;
+  const chars = word.split("");
+  const rev = (s) => s.split("").reverse().join("");
+
+  const rowsAll = [];
+  const steps = [];
+
+  for (let k = 0; k <= n; k++) {
+    const suffix = word.slice(n - k);        // the part this call receives
+    const held = k === 0 ? "" : word[n - k]; // the character this call holds
+    const rest = word.slice(n - k + 1);      // what it hands to the next call
+    const result = rev(suffix);
+
+    rowsAll.push({
+      sr: k,
+      label: `rev("${suffix}")`,
+      expr: k === 0 ? `"" (base case)` : `rev("${rest}") + "${held}"`,
+      expanded: k === 0 ? `""` : `"${rev(rest)}" + "${held}" = "${result}"`,
+    });
+
+    steps.push({
+      rows: [...rowsAll],
+      arrays: [
+        {
+          label: "og",
+          values: chars,
+          active: k === 0 ? -1 : n - k,
+          done: Array.from({ length: Math.max(0, k - 1) }, (_, j) => n - k + 1 + j),
+        },
+        {
+          label: "revArr",
+          values: chars.map((_, i) => (i < k ? chars[n - 1 - i] : null)),
+          active: k === 0 ? -1 : k - 1,
+          done: Array.from({ length: Math.max(0, k - 1) }, (_, i) => i),
+        },
+      ],
+      note:
+        k === 0
+          ? `Base case: rev("") = "". The chain was ${n + 1} calls deep, and nothing has been moved to revArr yet.`
+          : `rev("${suffix}") holds "${held}" (og[${n - k}]) and attaches it after rev("${rest}") = "${rev(rest)}" → "${result}". "${held}" lands in revArr[${k - 1}].`,
+    });
+  }
+  return steps;
+};
+
 const towerOfHanoiSteps = (n) => {
   const rods = buildInitialRods(n);
   const steps = [{ rods: cloneRods(rods), move: null, note: "Initial setup — all disks on Source." }];
@@ -436,30 +506,44 @@ const towerOfHanoiSteps = (n) => {
 const DISK_COLORS = ["#2563EB", "#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#DB2777"];
 const ROD_NAMES = ["Source", "Helper", "Destination"];
 
-const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, formula }) => {
+const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, formula, maxN }) => {
+  const isText = typeof n === "string";
   const rows = step.rows || [];
   return (
     <div className="fact-root">
       <div className="fact-infobar">
-        <span className="fact-info-item">Max(n) &lt;= 20</span>
+        <span className="fact-info-item">{isText ? `Max length = ${maxN}` : `Max(n) <= ${maxN}`}</span>
         <span className="fact-info-sep">•</span>
-        <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || n}</span>
+        <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || (isText ? n.length + 1 : n)}</span>
         <span className="fact-info-sep">•</span>
-        <span className="fact-info-item">n = {n}</span>
+        <span className="fact-info-item">{isText ? "word" : "n"} = {n}</span>
         <span className="fact-info-sep">•</span>
         <span className="fact-info-item">Formula = {formula}</span>
         <span className="fact-info-sep">•</span>
         <span className="fact-info-item-2">Decrease the Page Zoom when Steps are not fitting</span>
-        <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing"}>
+        <button className="fact-start-btn" onClick={onStart} disabled={phase === "playing" || n === ""}>
           {phase === "playing" ? "Running…" : phase === "done" ? "Restart" : "Start"}
         </button>
       </div>
-      {step.array && (
-        <div className="fact-array-row">
-          {step.array.map((val, i) => (
-            <div key={i} className={`fact-array-box ${i === step.highlightIndex ? "fact-array-box--active" : ""} ${i < step.highlightIndex ? "fact-array-box--done" : ""}`}>
-              {val}
-            </div>
+      {step.arrays && (
+        <div className="fact-arrays-wrap">
+          {step.arrays.map((arr, idx) => (
+            <Fragment key={arr.label}>
+              {idx > 0 && <span className="fact-array-arrow">→</span>}
+              <div className="fact-array-group">
+                <span className="fact-array-label">{arr.label}</span>
+                <div className="fact-array-row">
+                  {arr.values.map((val, i) => (
+                    <div
+                      key={i}
+                      className={`fact-array-box ${val === null ? "fact-array-box--empty" : ""} ${i === arr.active ? "fact-array-box--active" : ""} ${arr.done.includes(i) ? "fact-array-box--done" : ""}`}
+                    >
+                      {val}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Fragment>
           ))}
         </div>
       )}
@@ -554,6 +638,14 @@ const RECURSION_CONFIG = {
     param: { key: "n", label: "Exponent (n)", min: 0, max: 20, default: 10 },
     ownControls: true,
     formula: "2ⁿ = 2 × 2^(n-1)",
+  },
+  "reverse-string": {
+    steps: reverseStringSteps,
+    code: ReverseStringCodes,
+    Visualizer: FactorialVisualizer,
+    param: { key: "word", label: "Word (max 8)", type: "text", maxLength: 8, default: "CODE" },
+    ownControls: true,
+    formula: "rev(s) = rev(s[1:]) + s[0]",
   },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
@@ -669,14 +761,21 @@ const Recursion = () => {
   };
 
   const handleParamChange = (val) => {
-    const clamped = Math.min(Math.max(parseInt(val) || 0, activeConfig.param.min), activeConfig.param.max);
-    setParamValue(clamped);
+    if (activeConfig.param.type === "text") {
+      // letters only, uppercase, hard cap at maxLength
+      const clean = val.toUpperCase().replace(/[^A-Z]/g, "").slice(0, activeConfig.param.maxLength);
+      setParamValue(clean);
+    } else {
+      const clamped = Math.min(Math.max(parseInt(val) || 0, activeConfig.param.min), activeConfig.param.max);
+      setParamValue(clamped);
+    }
     setAllSteps([]);
     setCurrentStep(-1);
     setPhase("idle");
   };
 
   const handleStart = () => {
+    if (paramValue === "") return;
     clearAllTimeouts();
     const steps = activeConfig.steps(paramValue);
     setAllSteps(steps);
@@ -736,15 +835,28 @@ const Recursion = () => {
           </div>
           <label className="sort-n-label">
             {activeConfig.param.label}
-            <input
-              type="number"
-              min={activeConfig.param.min}
-              max={activeConfig.param.max}
-              value={paramValue}
-              onChange={(e) => handleParamChange(e.target.value)}
-              disabled={phase === "playing"}
-              className="sort-n-input"
-            />
+            {activeConfig.param.type === "text" ? (
+              <input
+                type="text"
+                maxLength={activeConfig.param.maxLength}
+                value={paramValue}
+                onChange={(e) => handleParamChange(e.target.value)}
+                disabled={phase === "playing"}
+                placeholder="e.g. CODE"
+                spellCheck={false}
+                className="sort-n-input sort-n-input--text"
+              />
+            ) : (
+              <input
+                type="number"
+                min={activeConfig.param.min}
+                max={activeConfig.param.max}
+                value={paramValue}
+                onChange={(e) => handleParamChange(e.target.value)}
+                disabled={phase === "playing"}
+                className="sort-n-input"
+              />
+            )}
           </label>
         </div>
       </div>
@@ -762,6 +874,7 @@ const Recursion = () => {
               phase={phase}
               onStart={handleStart}
               formula={activeConfig.formula}
+              maxN={activeConfig.param.max}
             />
           ) : (
             <div className="toh-viz-wrap">
@@ -775,7 +888,7 @@ const Recursion = () => {
                   <span className="step-hint">Set {activeConfig.param.label.toLowerCase()} and press Start</span>
                 )}
               </div>
-              <Visualizer step={step} totalDisks={paramValue} n={paramValue} />
+              <Visualizer step={step} totalDisks={paramValue} n={paramValue} maxN={activeConfig.param.max ?? activeConfig.param.maxLength}/>
             </div>
           )}
 
