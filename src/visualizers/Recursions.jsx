@@ -206,13 +206,9 @@ const RECURSION_OPTIONS = [
   { value: "sum-of-array", label: "Sum of Array", ready: true },
   { value: "power", label: "Power (Fast)", ready: true },
   { value: "power-simple", label: "Power (Simple)", ready: true },
-  { value: "gcd", label: "GCD (Euclidean)", ready: false },
   { value: "reverse-string", label: "Reverse a String", ready: false },
-  { value: "palindrome-check", label: "Palindrome Check", ready: false },
   { value: "binary-search", label: "Binary Search (Recursive)", ready: false },
   { value: "tower-of-hanoi", label: "Tower of Hanoi", ready: true },
-  { value: "permutations", label: "Permutations of a String", ready: false },
-  { value: "subsets", label: "Subsets (Power Set)", ready: false },
   { value: "n-queens", label: "N-Queens", ready: false },
 ];
 
@@ -563,7 +559,7 @@ const RECURSION_CONFIG = {
     steps: towerOfHanoiSteps,
     code: TowerOfHanoiCodes,
     Visualizer: TowerOfHanoiVisualizer,
-    param: { key: "disks", label: "Disks", min: 1, max: 7, default: 3 },
+    param: { key: "disks", label: "Disks", min: 1, max: 12, default: 3 },
     formula: "Will be Added Soon...",
   },
 };
@@ -575,13 +571,9 @@ const RECURSION_COMPLEXITY = {
   "sum-of-array": { time: "O(n)", space: "O(n)" },
   "power": { time: "O(log n)", space: "O(log n)" },
   "power-simple": { time: "O(n)", space: "O(n)" },
-  "gcd": { time: "O(log(min(a, b)))", space: "O(log(min(a, b)))" },
   "reverse-string": { time: "O(n)", space: "O(n)" },
-  "palindrome-check": { time: "O(n)", space: "O(n)" },
   "binary-search": { time: "O(log n)", space: "O(log n)" },
   "tower-of-hanoi": { time: "O(2ⁿ)", space: "O(n)" },
-  "permutations": { time: "O(n!)", space: "O(n)" },
-  "subsets": { time: "O(2ⁿ)", space: "O(n)" },
   "n-queens": { time: "O(n!)", space: "O(n)" },
 };
 
@@ -622,17 +614,9 @@ const RECURSION_DEFINITIONS = {
     definition: "Computes base^n the direct way: base^n = base × base^(n-1), until the exponent reaches 0, where the answer is 1.",
     example: "Like climbing a staircase one step at a time. It's easy to follow, but a staircase with 1,000 steps takes 1,000 moves.",
   },
-  "gcd": {
-    definition: "Finds the greatest common divisor of two numbers by repeatedly replacing the larger number with the remainder of dividing it by the smaller, until one number becomes zero.",
-    example: "Like repeatedly trimming the longer of two ropes down by the length of the shorter one, over and over, until both ropes are equal — that length is the answer.",
-  },
   "reverse-string": {
     definition: "Reverses a string by recursively reversing everything after the first character, then placing the first character at the very end.",
     example: "Like unstacking a pile of plates one at a time and restacking them in a new pile — the last plate you pick up ends up on top, flipping the entire order.",
-  },
-  "palindrome-check": {
-    definition: "Checks whether a string reads the same forwards and backwards by recursively comparing the first and last characters, then checking the smaller string between them.",
-    example: "Like two people starting at opposite ends of a word and walking toward each other, checking letters match at each step, until they meet in the middle.",
   },
   "binary-search": {
     definition: "Searches a sorted array by recursively checking the middle element and searching only the left or right half depending on the result, discarding half the remaining data each call.",
@@ -641,14 +625,6 @@ const RECURSION_DEFINITIONS = {
   "tower-of-hanoi": {
     definition: "A classic recursive puzzle: move a stack of disks from a source rod to a destination rod, using a helper rod, moving one disk at a time and never placing a larger disk on a smaller one.",
     example: "Like moving a stack of nested bowls from one table to another, one bowl at a time, using a spare table as temporary storage — always keeping bigger bowls beneath smaller ones.",
-  },
-  "permutations": {
-    definition: "Generates every possible ordering of a string's characters by recursively fixing one character at a time and permuting the remaining characters in every position.",
-    example: "Like trying on every possible arrangement of a small set of fridge magnets, one letter at a time, until you've spelled out every possible combination.",
-  },
-  "subsets": {
-    definition: "Generates every possible subset (the power set) of a set by recursively deciding, for each element, whether to include it or leave it out.",
-    example: "Like standing at a buffet with several dishes and recursively asking 'include this dish or skip it?' for every item, listing every possible plate combination.",
   },
   "n-queens": {
     definition: "Places n chess queens on an n×n board so none attack each other, by recursively placing one queen per row and backtracking whenever a placement leads to a conflict.",
@@ -663,7 +639,7 @@ const Recursion = () => {
   const [allSteps, setAllSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [phase, setPhase] = useState("idle");
-  const [speed, setSpeed] = useState(800);
+  const [speed, setSpeed] = useState(200);
   const [panelTab, setPanelTab] = useState("process");
   const [lang, setLang] = useState("go");
   const [copied, setCopied] = useState(false);

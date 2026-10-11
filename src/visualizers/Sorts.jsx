@@ -2106,7 +2106,7 @@ const Sorts = () => {
   const [allSteps, setAllSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [phase, setPhase] = useState("idle");
-  const [speed, setSpeed] = useState(2); // FARHAN PAGAL
+  const [speed, setSpeed] = useState(100);
   const [panelTab, setPanelTab] = useState("process");
   const [lang, setLang] = useState("go");
   const [copied, setCopied] = useState(false);
@@ -2116,7 +2116,6 @@ const Sorts = () => {
   const [stageWidth, setStageWidth] = useState(800);
 
   OnRefresh(phase === "playing");
-
 
   // All Sorting Steps
   const step = allSteps[currentStep] || {
