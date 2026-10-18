@@ -174,6 +174,22 @@ const ReverseStringCodes = {
 end`,
 };
 
+const BinarySearchCodes = {
+  cpp: ``,
+  java: `int binarySearch(int[] arr, int target, int low, int high) {
+    if (low > high) return -1;            
+    int mid = low + (high - low) / 2;     
+    if arr[mid] == target) return mid;   
+    if (target < arr[mid])
+        return binarySearch(arr, target, low, mid - 1);   
+    else
+        return binarySearch(arr, target, mid + 1, high);  
+}`,
+  python: ``,
+  go: ``,
+  ruby: ``,
+};
+
 const TowerOfHanoiCodes = {
   cpp: `void hanoi(int n, char from, char helper, char to) {
     if (n == 1) {
@@ -230,7 +246,7 @@ const RECURSION_OPTIONS = [
   { value: "power", label: "Power (Fast)", ready: true },
   { value: "power-simple", label: "Power (Simple)", ready: true },
   { value: "reverse-string", label: "Reverse a String", ready: true },
-  { value: "binary-search", label: "Binary Search (Recursive)", ready: false },
+  { value: "binary-search", label: "Binary Search (Recursive)", ready: true },
   { value: "tower-of-hanoi", label: "Tower of Hanoi", ready: true },
   { value: "n-queens", label: "N-Queens", ready: false },
 ];
@@ -888,7 +904,7 @@ const Recursion = () => {
                   <span className="step-hint">Set {activeConfig.param.label.toLowerCase()} and press Start</span>
                 )}
               </div>
-              <Visualizer step={step} totalDisks={paramValue} n={paramValue} maxN={activeConfig.param.max ?? activeConfig.param.maxLength}/>
+              <Visualizer step={step} totalDisks={paramValue} n={paramValue} maxN={activeConfig.param.max ?? activeConfig.param.maxLength} />
             </div>
           )}
 
