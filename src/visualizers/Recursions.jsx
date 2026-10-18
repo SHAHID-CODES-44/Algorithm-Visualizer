@@ -175,19 +175,54 @@ end`,
 };
 
 const BinarySearchCodes = {
-  cpp: ``,
-  java: `int binarySearch(int[] arr, int target, int low, int high) {
-    if (low > high) return -1;            
-    int mid = low + (high - low) / 2;     
-    if arr[mid] == target) return mid;   
+  cpp: `int binarySearch(int arr[], int target, int low, int high) {
+    if (low > high) return -1;
+    int mid = low + (high - low) / 2;
+    if (arr[mid] == target) return mid;
     if (target < arr[mid])
-        return binarySearch(arr, target, low, mid - 1);   
-    else
-        return binarySearch(arr, target, mid + 1, high);  
+        return binarySearch(arr, target, low, mid - 1);
+    return binarySearch(arr, target, mid + 1, high);
 }`,
-  python: ``,
-  go: ``,
-  ruby: ``,
+  java: `int binarySearch(int[] arr, int target, int low, int high) {
+    if (low > high) return -1;
+    int mid = low + (high - low) / 2;
+    if (arr[mid] == target) return mid;
+    if (target < arr[mid])
+        return binarySearch(arr, target, low, mid - 1);
+    return binarySearch(arr, target, mid + 1, high);
+}`,
+  python: `def binary_search(arr, target, low, high):
+    if low > high:
+        return -1
+    mid = low + (high - low) // 2
+    if arr[mid] == target:
+        return mid
+    if target < arr[mid]:
+        return binary_search(arr, target, low, mid - 1)
+    return binary_search(arr, target, mid + 1, high)`,
+  go: `func binarySearch(arr []int, target, low, high int) int {
+    if low > high {
+        return -1
+    }
+    mid := low + (high-low)/2
+    if arr[mid] == target {
+        return mid
+    }
+    if target < arr[mid] {
+        return binarySearch(arr, target, low, mid-1)
+    }
+    return binarySearch(arr, target, mid+1, high)
+}`,
+  ruby: `def binary_search(arr, target, low, high)
+  return -1 if low > high
+  mid = low + (high - low) / 2
+  return mid if arr[mid] == target
+  if target < arr[mid]
+    binary_search(arr, target, low, mid - 1)
+  else
+    binary_search(arr, target, mid + 1, high)
+  end
+end`,
 };
 
 const TowerOfHanoiCodes = {
@@ -496,6 +531,76 @@ const reverseStringSteps = (input) => {
   return steps;
 };
 
+// Random sorted array + target (75% chance the target exists in the array)
+const makeRandomSearchInput = (size) => {
+  const set = new Set();
+  while (set.size < size) set.add(Math.floor(Math.random() * 90) + 5);
+  const sorted = [...set].sort((a, b) => a - b);
+  let t;
+  if (Math.random() < 0.75) {
+    t = sorted[Math.floor(Math.random() * size)];
+  } else {
+    do { t = Math.floor(Math.random() * 90) + 5; } while (set.has(t));
+  }
+  return { arr: sorted.map(String), target: String(t) };
+};
+
+const binarySearchSteps = (n, extra) => {
+  let arr, target;
+  if (extra && Array.isArray(extra.array)) {
+    arr = [...extra.array].sort((a, b) => a - b);
+    target = extra.target;
+  } else {
+    const r = makeRandomSearchInput(n);
+    arr = r.arr.map(Number);
+    target = Number(r.target);
+  }
+
+  const rows = [];
+  const steps = [];
+
+  const search = (low, high, depth) => {
+    if (low > high) {
+      rows.push({ sr: depth, label: `bs(${low}, ${high})`, expr: "low > high → empty range", expanded: "return -1 (not found)" });
+      steps.push({
+        rows: [...rows],
+        bs: { low, high, mid: -1, status: "notfound" },
+        note: `Range is empty (low = ${low} > high = ${high}), so ${target} is not in the array.`,
+      });
+      return;
+    }
+
+    const mid = Math.floor((low + high) / 2);
+    const midVal = arr[mid];
+    const label = `bs(${low}, ${high})`;
+    const expr = `mid = ${mid}, arr[${mid}] = ${midVal}`;
+
+    if (midVal === target) {
+      rows.push({ sr: depth, label, expr, expanded: `${target} = ${midVal} → found at index ${mid}` });
+      steps.push({
+        rows: [...rows],
+        bs: { low, high, mid, status: "found" },
+        note: `Call ${depth + 1}: mid = ${mid}, arr[${mid}] = ${midVal} equals the target ${target}. Found at index ${mid}.`,
+      });
+      return;
+    }
+
+    const goLeft = target < midVal;
+    rows.push({ sr: depth, label, expr, expanded: goLeft ? `${target} < ${midVal} → go left` : `${target} > ${midVal} → go right` });
+    steps.push({
+      rows: [...rows],
+      bs: { low, high, mid, status: "searching" },
+      note: `Call ${depth + 1}: mid = ${mid}, arr[${mid}] = ${midVal}. ${target} ${goLeft ? "<" : ">"} ${midVal}, so search the ${goLeft ? `left half [${low}..${mid - 1}]` : `right half [${mid + 1}..${high}]`}.`,
+    });
+
+    if (goLeft) search(low, mid - 1, depth + 1);
+    else search(mid + 1, high, depth + 1);
+  };
+
+  search(0, arr.length - 1, 0);
+  return steps;
+};
+
 const towerOfHanoiSteps = (n) => {
   const rods = buildInitialRods(n);
   const steps = [{ rods: cloneRods(rods), move: null, note: "Initial setup — all disks on Source." }];
@@ -569,6 +674,149 @@ const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onSt
           <div key={r.sr} className="fact-row">
             <span className="fact-sr">{r.sr}</span>
             <span className="fact-label">{r.label ?? `f(${r.sr})`}</span>
+            <span className="fact-eq">=</span>
+            <span className="fact-expr">{r.expr}</span>
+            <span className="fact-eq">=</span>
+            <span className="fact-expanded">{r.expanded}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const BinarySearchVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, onReset, formula, maxN }) => {
+  const [arr, setArr] = useState([]);
+  const [target, setTarget] = useState("");
+  const [pulse, setPulse] = useState(false);
+  const [error, setError] = useState("");
+  const pulseTimer = useRef(null);
+
+  const playing = phase === "playing";
+  const hasSteps = allStepsLength > 0;
+  const b = hasSteps ? step.bs || null : null;
+  const rows = step.rows || [];
+
+  // New random array whenever n changes (also runs once on mount)
+  useEffect(() => {
+    const r = makeRandomSearchInput(n);
+    setArr(r.arr);
+    setTarget(r.target);
+    setError("");
+  }, [n]);
+
+  const handleRandom = () => {
+    if (hasSteps) onReset();
+    const r = makeRandomSearchInput(n);
+    setArr(r.arr);
+    setTarget(r.target);
+    setError("");
+    setPulse(true);                       // draws the eye to the new target
+    clearTimeout(pulseTimer.current);
+    pulseTimer.current = setTimeout(() => setPulse(false), 2700);
+  };
+
+  const editArr = (i, v) => {
+    if (hasSteps) onReset();
+    setArr((prev) => prev.map((x, j) => (j === i ? v : x)));
+    setError("");
+  };
+
+  const editTarget = (v) => {
+    if (hasSteps) onReset();
+    setTarget(v);
+    setError("");
+  };
+
+  const handleStartClick = () => {
+    const nums = arr.map((v) => (v === "" ? NaN : Number(v)));
+    const t = target === "" ? NaN : Number(target);
+    if (nums.some(Number.isNaN) || Number.isNaN(t)) {
+      setError("Fill every box and the target first.");
+      return;
+    }
+    const sorted = [...nums].sort((a, c) => a - c);
+    setArr(sorted.map(String));
+    onStart({ array: sorted, target: t });
+  };
+
+  const boxClass = (i) => {
+    if (!b) return "bs-box";
+    if (b.status === "found" && i === b.mid) return "bs-box bs-box--found";
+    if (b.status === "searching" && i === b.mid) return "bs-box bs-box--mid";
+    if (i < b.low || i > b.high) return "bs-box bs-box--out";
+    return "bs-box";
+  };
+
+  const tagText = (i) => {
+    if (!b || b.status === "notfound") return "";
+    const t = [];
+    if (i === b.low) t.push("low");
+    if (i === b.mid) t.push("mid");
+    if (i === b.high) t.push("high");
+    return t.join("/");
+  };
+
+  return (
+    <div className="fact-root">
+      <div className="fact-infobar">
+        <span className="fact-info-item">Max(n) &lt;= {maxN}</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || "—"}</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">n = {n}</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">Formula = {formula}</span>
+        <div className="bs-actions">
+          <button className="bs-random-btn" onClick={handleRandom} disabled={playing}>🎲 Random</button>
+          <button className="fact-start-btn" onClick={handleStartClick} disabled={playing}>
+            {playing ? "Running…" : phase === "done" ? "Restart" : "Start"}
+          </button>
+        </div>
+      </div>
+
+      <div className="bs-target-row">
+        <span className="bs-target-label">Target</span>
+        <input
+          type="number"
+          value={target}
+          onChange={(e) => editTarget(e.target.value)}
+          disabled={playing}
+          className={`bs-target-input ${pulse ? "bs-target-input--pulse" : ""}`}
+        />
+        <span className="bs-hint">bs = Binary Search, The array is sorted automatically when you press Start.</span>
+        {error && <span className="bs-error">{error}</span>}
+      </div>
+
+      <div className="bs-array-row">
+        {arr.map((val, i) => (
+          <div key={i} className="bs-cell">
+            <input
+              type="number"
+              value={val}
+              onChange={(e) => editArr(i, e.target.value)}
+              disabled={playing}
+              className={boxClass(i)}
+            />
+            <span className="bs-idx">{i}</span>
+            <span className="bs-tag">{tagText(i)}</span>
+          </div>
+        ))}
+      </div>
+
+      {b && b.status === "found" && (
+        <div className="bs-result bs-result--found">Found {target} at index {b.mid}</div>
+      )}
+      {b && b.status === "notfound" && (
+        <div className="bs-result bs-result--notfound">{target} is not in the array</div>
+      )}
+
+      <div className="fact-window">
+        {rows.length === 0 && <p className="fact-empty">Press Start to search step by step.</p>}
+        {rows.map((r) => (
+          <div key={r.sr} className="fact-row">
+            <span className="fact-sr">{r.sr}</span>
+            <span className="fact-label">{r.label}</span>
             <span className="fact-eq">=</span>
             <span className="fact-expr">{r.expr}</span>
             <span className="fact-eq">=</span>
@@ -663,6 +911,14 @@ const RECURSION_CONFIG = {
     ownControls: true,
     formula: "rev(s) = rev(s[1:]) + s[0]",
   },
+  "binary-search": {
+    steps: binarySearchSteps,
+    code: BinarySearchCodes,
+    Visualizer: BinarySearchVisualizer,
+    param: { key: "n", label: "Array Size (n)", min: 2, max: 10, default: 8 },
+    ownControls: true,
+    formula: "mid = ⌊(low + high) / 2⌋",
+  },
   "tower-of-hanoi": {
     steps: towerOfHanoiSteps,
     code: TowerOfHanoiCodes,
@@ -727,8 +983,13 @@ const RECURSION_DEFINITIONS = {
     example: "Like unstacking a pile of plates one at a time and restacking them in a new pile — the last plate you pick up ends up on top, flipping the entire order.",
   },
   "binary-search": {
-    definition: "Searches a sorted array by recursively checking the middle element and searching only the left or right half depending on the result, discarding half the remaining data each call.",
-    example: "Like looking up a word in a dictionary — you don't scan every page, you jump to the middle, decide which half your word is in, and repeat.",
+    definition: "Searches a sorted array by checking the middle element and then searching only the left or right half, discarding half the remaining data on each call. If the range becomes empty, the target isn't there.",
+    example: "Like looking up a word in a dictionary. You open it near the middle, decide which half your word is in, and repeat, never reading every page.",
+    facts: [
+      "It only works on sorted data. That is why the visualizer sorts your array when you press Start.",
+      "1,000 items need at most 10 checks. 1,000,000 items need at most 20. Each doubling of the data adds just one more step.",
+      "Compute the middle as low + (high - low) / 2 instead of (low + high) / 2. Both give the same answer, but the second can overflow an int when the numbers are huge. This famous bug sat in widely used library code for years.",
+    ],
   },
   "tower-of-hanoi": {
     definition: "A classic recursive puzzle: move a stack of disks from a source rod to a destination rod, using a helper rod, moving one disk at a time and never placing a larger disk on a smaller one.",
@@ -747,7 +1008,7 @@ const Recursion = () => {
   const [allSteps, setAllSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [phase, setPhase] = useState("idle");
-  const [speed, setSpeed] = useState(200);
+  const [speed, setSpeed] = useState(800);
   const [panelTab, setPanelTab] = useState("process");
   const [lang, setLang] = useState("go");
   const [copied, setCopied] = useState(false);
@@ -765,6 +1026,13 @@ const Recursion = () => {
   const clearAllTimeouts = () => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
+  };
+
+  const handleReset = () => {
+    clearAllTimeouts();
+    setAllSteps([]);
+    setCurrentStep(-1);
+    setPhase("idle");
   };
 
   const handleAlgoChange = (value) => {
@@ -790,10 +1058,10 @@ const Recursion = () => {
     setPhase("idle");
   };
 
-  const handleStart = () => {
+  const handleStart = (extra) => {
     if (paramValue === "") return;
     clearAllTimeouts();
-    const steps = activeConfig.steps(paramValue);
+    const steps = activeConfig.steps(paramValue, extra);
     setAllSteps(steps);
     setCurrentStep(0);
     setPhase("playing");
@@ -889,6 +1157,7 @@ const Recursion = () => {
               currentStep={currentStep}
               phase={phase}
               onStart={handleStart}
+              onReset={handleReset}
               formula={activeConfig.formula}
               maxN={activeConfig.param.max}
             />
