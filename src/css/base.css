@@ -1293,3 +1293,158 @@ fact-info-item-2 {
 .bs-result--found { background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; }
 .bs-result--notfound { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; }
 /* Binary Search Styling Ends Here */
+
+/* N-Queens Styling Starts Here */
+
+/* ---- layout: board on the left, sidebar on the right ---- */
+.nq-stage {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding-top: 6px;
+}
+
+/* ---- board ---- */
+.nq-board {
+  display: grid;
+  gap: 0;
+  width: max-content;
+}
+
+.nq-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.nq-cell {
+  width: var(--nq-cell);
+  height: var(--nq-cell);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.nq-cell--light { background: #f8fafc; }
+.nq-cell--dark { background: #e2e8f0; }
+.nq-cell--attacked.nq-cell--light { background: #fee2e2; }
+.nq-cell--attacked.nq-cell--dark { background: #fecaca; }
+.nq-cell--row { box-shadow: inset 0 2px 0 #93c5fd, inset 0 -2px 0 #93c5fd; }
+
+/* ---- queens ---- */
+.nq-queen {
+  font-size: calc(var(--nq-cell) * 0.62);
+  line-height: 1;
+  color: #1e293b;
+}
+.nq-queen--new { color: #7c3aed; animation: nq-pop 0.35s ease; }
+.nq-queen--solved { color: #059669; }
+.nq-queen--removed { color: #d97706; opacity: 0.75; animation: nq-fade 0.5s ease; }
+
+@keyframes nq-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  70%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes nq-fade {
+  from { opacity: 1; transform: scale(1.15); }
+  to   { opacity: 0.75; transform: scale(1); }
+}
+
+/* ---- cell markers (sized from the cell; fallback keeps them visible in the legend) ---- */
+.nq-x {
+  font-size: calc(var(--nq-cell, 60px) * 0.3);
+  font-weight: 800;
+  color: #b91c1c;
+  opacity: 0.45;
+}
+
+.nq-dot {
+  width: calc(var(--nq-cell, 60px) * 0.16);
+  height: calc(var(--nq-cell, 60px) * 0.16);
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.nq-tried {
+  width: calc(var(--nq-cell, 60px) * 0.22);
+  height: calc(var(--nq-cell, 60px) * 0.22);
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+}
+
+/* ---- sidebar ---- */
+.nq-sidebar {
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 26px; /* lines the sidebar up with the first board row */
+}
+
+.nq-sidebar-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.nq-hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.nq-banner {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.nq-banner--ok { background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; }
+.nq-banner--error { background: #fef2f2; color: #991b1b; border: 1.5px solid #fecaca; }
+
+/* ---- legend (vertical list) ---- */
+.nq-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: #475569;
+}
+.nq-legend li { display: flex; align-items: center; gap: 10px; }
+
+.nq-key {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+.nq-key--new { color: #7c3aed; }
+.nq-key--old { color: #1e293b; }
+.nq-key--removed { color: #d97706; }
+.nq-key--attacked { background: #fee2e2; color: #b91c1c; font-weight: 800; }
+
+/* N-Queens Styling Ends Here */

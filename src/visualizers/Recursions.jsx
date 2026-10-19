@@ -271,6 +271,112 @@ const TowerOfHanoiCodes = {
 end`,
 };
 
+const NQueensCodes = {
+  cpp: `bool isSafe(vector<int>& queens, int row, int col) {
+    for (int r = 0; r < row; r++) {
+        int c = queens[r];
+        if (c == col || abs(c - col) == row - r) return false;
+    }
+    return true;
+}
+
+bool solve(vector<int>& queens, int row, int n) {
+    if (row == n) return true;              // every queen is placed
+    for (int col = 0; col < n; col++) {
+        if (isSafe(queens, row, col)) {
+            queens[row] = col;              // place
+            if (solve(queens, row + 1, n)) return true;
+            queens[row] = -1;               // backtrack
+        }
+    }
+    return false;                           // dead end
+}`,
+  java: `boolean isSafe(int[] queens, int row, int col) {
+    for (int r = 0; r < row; r++) {
+        int c = queens[r];
+        if (c == col || Math.abs(c - col) == row - r) return false;
+    }
+    return true;
+}
+
+boolean solve(int[] queens, int row, int n) {
+    if (row == n) return true;              // every queen is placed
+    for (int col = 0; col < n; col++) {
+        if (isSafe(queens, row, col)) {
+            queens[row] = col;              // place
+            if (solve(queens, row + 1, n)) return true;
+            queens[row] = -1;               // backtrack
+        }
+    }
+    return false;                           // dead end
+}`,
+  python: `def is_safe(queens, row, col):
+    for r in range(row):
+        c = queens[r]
+        if c == col or abs(c - col) == row - r:
+            return False
+    return True
+
+def solve(queens, row, n):
+    if row == n:                  # every queen is placed
+        return True
+    for col in range(n):
+        if is_safe(queens, row, col):
+            queens[row] = col     # place
+            if solve(queens, row + 1, n):
+                return True
+            queens[row] = -1      # backtrack
+    return False                  # dead end`,
+  go: `func abs(x int) int {
+    if x < 0 {
+        return -x
+    }
+    return x
+}
+
+func isSafe(queens []int, row, col int) bool {
+    for r := 0; r < row; r++ {
+        c := queens[r]
+        if c == col || abs(c-col) == row-r {
+            return false
+        }
+    }
+    return true
+}
+
+func solve(queens []int, row, n int) bool {
+    if row == n { // every queen is placed
+        return true
+    }
+    for col := 0; col < n; col++ {
+        if isSafe(queens, row, col) {
+            queens[row] = col // place
+            if solve(queens, row+1, n) {
+                return true
+            }
+            queens[row] = -1 // backtrack
+        }
+    }
+    return false // dead end
+}`,
+  ruby: `def safe?(queens, row, col)
+  (0...row).none? do |r|
+    queens[r] == col || (queens[r] - col).abs == row - r
+  end
+end
+
+def solve(queens, row, n)
+  return true if row == n        # every queen is placed
+  (0...n).each do |col|
+    next unless safe?(queens, row, col)
+    queens[row] = col            # place
+    return true if solve(queens, row + 1, n)
+    queens[row] = -1             # backtrack
+  end
+  false                          # dead end
+end`,
+};
+
 // ---------------------------------------------- CODE STORAGE ENDS FOR ALL RECURSION PROBLEMS ----------------------------------------
 
 // ---- PROBLEM LIST (dropdown works, only Tower of Hanoi is implemented) ----
@@ -283,7 +389,7 @@ const RECURSION_OPTIONS = [
   { value: "reverse-string", label: "Reverse a String", ready: true },
   { value: "binary-search", label: "Binary Search (Recursive)", ready: true },
   { value: "tower-of-hanoi", label: "Tower of Hanoi", ready: true },
-  { value: "n-queens", label: "N-Queens", ready: false },
+  { value: "n-queens", label: "N-Queens", ready: true },
 ];
 
 // ---- LIGHTWEIGHT SYNTAX HIGHLIGHTER (same as Sorts.jsx) ----
@@ -623,6 +729,118 @@ const towerOfHanoiSteps = (n) => {
   return steps;
 };
 
+const nQueensSteps = (n) => {
+  n = Math.min(8, Math.max(1, Number(n) || 1));
+  const queens = Array(n).fill(-1); // queens[row] = column, or -1 if the row is empty
+  const steps = [];
+  let placements = 0;
+  let backtracks = 0;
+
+  const isSafe = (row, col) => {
+    for (let r = 0; r < row; r++) {
+      const c = queens[r];
+      if (c === col || Math.abs(c - col) === row - r) return false;
+    }
+    return true;
+  };
+
+  // Every cell below a queen that the placed queens attack (column + both diagonals)
+  const attackedGrid = () => {
+    const g = Array.from({ length: n }, () => Array(n).fill(false));
+    for (let r = 0; r < n; r++) {
+      const c = queens[r];
+      if (c < 0) continue;
+      for (let rr = r + 1; rr < n; rr++) {
+        const d = rr - r;
+        g[rr][c] = true;
+        if (c - d >= 0) g[rr][c - d] = true;
+        if (c + d < n) g[rr][c + d] = true;
+      }
+    }
+    return g;
+  };
+
+  const clearGrid = () => Array.from({ length: n }, () => Array(n).fill(false));
+
+  const snap = (status, note, extra = {}) =>
+    steps.push({
+      board: {
+        n,
+        queens: [...queens],
+        attacked: attackedGrid(),
+        status,
+        activeRow: -1,
+        safe: [],
+        tried: [],
+        removed: null,
+        ...extra,
+      },
+      note,
+    });
+
+  const solve = (row) => {
+    if (row === n) return true;
+    const tried = []; // columns in this row that were placed and later failed
+
+    for (let col = 0; col < n; col++) {
+      if (!isSafe(row, col)) continue;
+
+      const safe = [];
+      for (let c = 0; c < n; c++) if (isSafe(row, c)) safe.push(c);
+      const others = safe.filter((c) => c !== col && !tried.includes(c)).length;
+
+      queens[row] = col;
+      placements++;
+      snap(
+        "place",
+        `Queen placed at row ${row}, column ${col}. ` +
+        (others > 0
+          ? `${others} other safe cell(s) in this row stay in reserve. `
+          : "No other safe cell in this row. ") +
+        (row < n - 1 ? "Red cells below can no longer hold a queen." : ""),
+        { activeRow: row, safe, tried: [...tried] }
+      );
+
+      if (solve(row + 1)) return true;
+
+      queens[row] = -1;
+      backtracks++;
+      tried.push(col);
+      snap(
+        "backtrack",
+        `Backtrack: the queen at row ${row}, column ${col} leads nowhere, so it is removed. Looking for the next safe cell in row ${row}.`,
+        { activeRow: row, removed: { r: row, c: col }, tried: [...tried] }
+      );
+    }
+
+    snap(
+      "deadend",
+      row === 0
+        ? "Row 0 has no cell left to try. Every option has failed."
+        : `Row ${row}: every cell is either attacked or already tried. Dead end, so the queen in row ${row - 1} has to move.`,
+      { activeRow: row, tried: [...tried] }
+    );
+    return false;
+  };
+
+  snap("start", `Empty ${n}×${n} board. Rule: one queen per row, and no two queens share a column or a diagonal.`);
+
+  if (solve(0)) {
+    snap(
+      "solved",
+      `Solution found! Queens at ${queens.map((c, r) => `(${r},${c})`).join(" ")}. It took ${placements} placements and ${backtracks} backtracks.`,
+      { attacked: clearGrid() }
+    );
+  } else {
+    snap(
+      "nosolution",
+      `Error: no solution exists for N = ${n}. The search tried every option and each one ended in a dead end. (N = 1 and every N from 4 up do have solutions.)`,
+      { attacked: clearGrid() }
+    );
+  }
+  return steps;
+};
+
 // ---- VISUALIZER COMPONENTS (one per problem — renders whatever that problem's step shape needs) ----
 const DISK_COLORS = ["#2563EB", "#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#DB2777"];
 const ROD_NAMES = ["Source", "Helper", "Destination"];
@@ -681,6 +899,104 @@ const FactorialVisualizer = ({ step, n, allStepsLength, currentStep, phase, onSt
           </div>
         ))}
       </div>
+    </div>
+  );
+};
+
+const NQueensVisualizer = ({ step, n, allStepsLength, currentStep, phase, onStart, formula, maxN }) => {
+  const size = Math.min(maxN ?? 8, Math.max(1, Number(n) || 1));
+  const hasSteps = allStepsLength > 0;
+  const b = hasSteps ? step.board || null : null;
+  const cell = size <= 4 ? 120 : size === 5 ? 112 : size === 6 ? 104 : size === 7 ? 92 : 84;
+  const playing = phase === "playing";
+
+  const renderCell = (r, c) => {
+    const isQueen = !!b && b.queens[r] === c;
+    const isRemoved = !!b && !!b.removed && b.removed.r === r && b.removed.c === c;
+    const attacked = !!b && !isQueen && b.attacked[r][c];
+    const inRow = !!b && b.activeRow === r;
+    const isTried = inRow && !isQueen && !isRemoved && b.tried.includes(c);
+    const isSafe = inRow && !isQueen && !isRemoved && !isTried && b.safe.includes(c);
+    const justPlaced = isQueen && b.status === "place" && b.activeRow === r;
+    const solved = isQueen && b.status === "solved";
+
+    const cls = [
+      "nq-cell",
+      (r + c) % 2 === 0 ? "nq-cell--light" : "nq-cell--dark",
+      attacked ? "nq-cell--attacked" : "",
+      inRow ? "nq-cell--row" : "",
+    ].join(" ");
+
+    return (
+      <div key={`${r}-${c}`} className={cls}>
+        {isQueen && (
+          <span className={`nq-queen ${justPlaced ? "nq-queen--new" : ""} ${solved ? "nq-queen--solved" : ""}`}>♛</span>
+        )}
+        {isRemoved && <span className="nq-queen nq-queen--removed">♛</span>}
+        {attacked && !isRemoved && <span className="nq-x">×</span>}
+        {isTried && <span className="nq-tried" />}
+        {isSafe && <span className="nq-dot" />}
+      </div>
+    );
+  };
+
+  return (
+    <div className="fact-root">
+      <div className="fact-infobar">
+        <span className="fact-info-item">Max(n) &lt;= {maxN}</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">Step {Math.max(currentStep + 1, 0)} / {allStepsLength || "—"}</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">N = {size}</span>
+        <span className="fact-info-sep">•</span>
+        <span className="fact-info-item">Rule = {formula}</span>
+        <button className="fact-start-btn" onClick={() => onStart()} disabled={playing}>
+          {playing ? "Running…" : phase === "done" ? "Restart" : "Start"}
+        </button>
+      </div>
+
+      <div className="nq-stage">
+  <div
+    className="nq-board"
+    style={{
+      "--nq-cell": `min(${cell}px, calc((100vh - 240px) / ${size + 1}))`,
+      gridTemplateColumns: `26px repeat(${size}, var(--nq-cell))`,
+    }}
+  >
+    <span />
+    {Array.from({ length: size }, (_, c) => (
+      <span key={`cl-${c}`} className="nq-label">{c}</span>
+    ))}
+    {Array.from({ length: size }, (_, r) => (
+      <Fragment key={`row-${r}`}>
+        <span className="nq-label">{r}</span>
+        {Array.from({ length: size }, (_, c) => renderCell(r, c))}
+      </Fragment>
+    ))}
+  </div>
+
+  <aside className="nq-sidebar">
+    {!hasSteps && (
+      <p className="nq-hint">Press Start to place {size} queen{size > 1 ? "s" : ""} on the {size}×{size} board.</p>
+    )}
+    {b && b.status === "solved" && (
+      <div className="nq-banner nq-banner--ok">Solution found for N = {size}</div>
+    )}
+    {b && b.status === "nosolution" && (
+      <div className="nq-banner nq-banner--error">Error: no solution exists for N = {size}</div>
+    )}
+
+    <span className="nq-sidebar-title">Legend</span>
+    <ul className="nq-legend">
+      <li><span className="nq-key nq-key--new">♛</span>Just placed</li>
+      <li><span className="nq-key nq-key--old">♛</span>Placed earlier</li>
+      <li><span className="nq-key nq-key--attacked">×</span>Eliminated cell</li>
+      <li><span className="nq-key"><span className="nq-dot" /></span>Safe, kept in reserve</li>
+      <li><span className="nq-key"><span className="nq-tried" /></span>Tried, dead end</li>
+      <li><span className="nq-key nq-key--removed">♛</span>Removed (backtrack)</li>
+    </ul>
+  </aside>
+</div>
     </div>
   );
 };
@@ -926,6 +1242,14 @@ const RECURSION_CONFIG = {
     param: { key: "disks", label: "Disks", min: 1, max: 12, default: 3 },
     formula: "Will be Added Soon...",
   },
+  "n-queens": {
+    steps: nQueensSteps,
+    code: NQueensCodes,
+    Visualizer: NQueensVisualizer,
+    param: { key: "n", label: "Board Size (N)", min: 1, max: 8, default: 4 },
+    ownControls: true,
+    formula: "one queen per row, none share a column or diagonal",
+  },
 };
 
 // Time and Space Complexity
@@ -996,8 +1320,15 @@ const RECURSION_DEFINITIONS = {
     example: "Like moving a stack of nested bowls from one table to another, one bowl at a time, using a spare table as temporary storage — always keeping bigger bowls beneath smaller ones.",
   },
   "n-queens": {
-    definition: "Places n chess queens on an n×n board so none attack each other, by recursively placing one queen per row and backtracking whenever a placement leads to a conflict.",
-    example: "Like seating guests at a round table one at a time, checking for conflicts after each seat is filled, and undoing the last seating whenever a clash is found — trying the next option instead.",
+    definition: "Places N chess queens on an N×N board so that no two attack each other, meaning no two share a row, column or diagonal. The recursion places one queen per row. When a row has no safe cell left, it backtracks: it removes the previous queen and tries that queen's next option.",
+    example: "Like seating N guests in N rows so that no two guests can see each other along a column or a diagonal. If a row has no seat that works, you ask the guest in the row above to move, and try again.",
+    facts: [
+      "N = 2 and N = 3 have no solution at all, which is why the visualizer ends with an error for them. Every other N has at least one.",
+      "The number of solutions doesn't grow smoothly: N = 4 has 2, N = 5 has 10, N = 6 has only 4, N = 7 has 40, and N = 8 has 92.",
+      "The puzzle was published by the chess composer Max Bezzel in 1848 for the 8×8 board. Franz Nauck found all 92 solutions in 1850.",
+      "Placing 8 queens on 64 squares with no rules gives about 4.4 billion arrangements. Backtracking drops a whole branch the moment a queen conflicts, so it reaches a solution after checking a tiny fraction of them.",
+      "The same pattern of choose, check, recurse and undo solves Sudoku, maze paths and many scheduling problems.",
+    ],
   },
 };
 
