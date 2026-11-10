@@ -1123,6 +1123,68 @@ const CycleSortCodes = {
 end`,
 };
 
+// ---- GNOME SORT ----
+const GnomeSortCodes = {
+  cpp: `void gnomeSort(int arr[], int n) {
+    int i = 0;
+    while (i < n) {
+        if (i == 0 || arr[i] >= arr[i - 1]) {
+            i++;
+        } else {
+            swap(arr[i], arr[i - 1]);
+            i--;
+        }
+    }
+}`,
+  java: `void gnomeSort(int[] arr) {
+    int n = arr.length;
+    int i = 0;
+    while (i < n) {
+        if (i == 0 || arr[i] >= arr[i - 1]) {
+            i++;
+        } else {
+            int t = arr[i]; arr[i] = arr[i - 1]; arr[i - 1] = t;
+            i--;
+        }
+    }
+}`,
+  python: `def gnome_sort(arr):
+    n = len(arr)
+    i = 0
+    while i < n:
+        if i == 0 or arr[i] >= arr[i - 1]:
+            i += 1
+        else:
+            arr[i], arr[i - 1] = arr[i - 1], arr[i]
+            i -= 1
+    return arr`,
+  go: `func gnomeSort(arr []int) {
+    n := len(arr)
+    i := 0
+    for i < n {
+        if i == 0 || arr[i] >= arr[i-1] {
+            i++
+        } else {
+            arr[i], arr[i-1] = arr[i-1], arr[i]
+            i--
+        }
+    }
+}`,
+  ruby: `def gnome_sort(arr)
+  n = arr.length
+  i = 0
+  while i < n
+    if i == 0 || arr[i] >= arr[i - 1]
+      i += 1
+    else
+      arr[i], arr[i - 1] = arr[i - 1], arr[i]
+      i -= 1
+    end
+  end
+  arr
+end`,
+};
+
 // ---- PANCAKE SORT ----
 const PancakeSortCodes = {
   cpp: `void flip(int arr[], int k) {
@@ -1366,6 +1428,7 @@ const ALGO_OPTIONS = [
   { value: "pancake-sort", label: "pancake Sort", ready: true },
   { value: "bogo-sort", label: "Bogo Sort", ready: true },
   { value: "d-bogo-sort", label: "D Bogo Sort", ready: false },
+  { value: "gnome-sort", label: "Gnome Sort", ready: true },
 ];
 
 // Algorithm Explainations
@@ -1441,6 +1504,10 @@ const ALGO_DEFINITIONS = {
   "d-bogo-sort": {
     definition: "A systematically inefficient algorithm that systematically generates every single mathematical permutation of an array one by one until it finds the sorted one. Used to guarantee an answer while highlighting the extreme performance cost of brute-force logic.",
     example: "Like laying out a deck of cards, writing down every single possible ordering of them in a massive notebook, and checking each one page-by-page from top to bottom without skipping a single combo until you hit the sorted layout.",
+  },
+    "gnome-sort": {
+    definition: "A simple comparison sort that walks through the array and swaps adjacent elements that are out of order, then steps back one position to re-check the previous pair. It moves forward only when the current pair is in order, so it behaves like Insertion Sort done with swaps.",
+    example: "Like a garden gnome sorting flower pots in a row — if the pot in front of him is in the right order he steps forward, otherwise he swaps the two pots and steps back to check again.",
   },
 };
 
@@ -1999,6 +2066,32 @@ const cycleSortSteps = (arr) => {
   return steps;
 };
 
+// ---- GNOME SORT ----
+const gnomeSortSteps = (arr) => {
+  let a = arr.map((v, i) => ({ id: i, value: v }));
+  const steps = [{ array: [...a], comparing: [], sortedIdx: [], note: "Initial array." }];
+  const n = a.length;
+  let i = 0;
+
+  while (i < n) {
+    if (i === 0) {
+      i++;
+      continue;
+    }
+    steps.push({ array: [...a], comparing: [i - 1, i], sortedIdx: [], note: `Comparing ${a[i - 1].value} and ${a[i].value}.` });
+    if (a[i].value >= a[i - 1].value) {
+      i++;
+    } else {
+      [a[i], a[i - 1]] = [a[i - 1], a[i]];
+      steps.push({ array: [...a], comparing: [i - 1, i], sortedIdx: [], note: `Swapped ${a[i].value} and ${a[i - 1].value}, stepping back.` });
+      i--;
+    }
+  }
+
+  steps.push({ array: [...a], comparing: [], sortedIdx: a.map((_, idx) => idx), note: "Array fully sorted! ✅" });
+  return steps;
+};
+
 // ---- PANCAKE SORT ----
 const pancakeSortSteps = (arr) => {
   let a = arr.map((v, i) => ({ id: i, value: v }));
@@ -2072,6 +2165,7 @@ const ALGO_CONFIG = {
   "tim-sort": { steps: timSortSteps, code: TimSortCodes },
   "intro-sort": { steps: introSortSteps, code: IntroSortCodes },
   "cycle-sort": { steps: cycleSortSteps, code: CycleSortCodes },
+  "gnome-sort": { steps: gnomeSortSteps, code: GnomeSortCodes },
   "pancake-sort": { steps: pancakeSortSteps, code: PancakeSortCodes },
   "bogo-sort": { steps: bogoSortSteps, code: BogoSortCodes },
   "d-bogo-sort": { steps: DBogoSortSteps, code: DeterministicBogoSortCodes },
@@ -2096,6 +2190,7 @@ const ALGO_COMPLEXITY = {
   "cycle-sort": { time: "O(n²)", space: "O(1)" },
   "pancake-sort": { time: "O(n²)", space: "O(1)" },
   "d-bogo-sort": { time: "O((n+1)!)", space: "O(1)" },
+  "gnome-sort": { time: "O(n²)", space: "O(1)" },
 };
 
 // Main Function
